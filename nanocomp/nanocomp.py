@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from nanoplot import utils
 import nanoplotter
 import pandas as pd
+import numpy as np
 import logging
 from .version import __version__
 
@@ -20,10 +21,8 @@ def main():
         utils.make_output_dir(args.outdir)
         utils.init_logs(args)
         args.format = nanoplotter.check_valid_format(args.format)
-        settings = dict()
-        settings["path"] = path.join(args.outdir, args.prefix)
         datadf = get_input(args)
-        make_plots(datadf, settings, args)
+        make_plots(datadf, path.join(args.outdir, args.prefix), args)
         logging.info("Succesfully processed all input.")
     except Exception as e:
         logging.error(e, exc_info=True)
@@ -99,19 +98,65 @@ def get_input(args):
     The resulting output DataFrames are concatenated
     '''
     if args.fastq:
-        datadfs = [nanoget.process_fastq_plain(inp, args.threads) for inp in args.fastq]
+        datadf = combine_dfs(
+            dfs=[nanoget.process_fastq_plain(inp, args.threads) for inp in args.fastq],
+            names=[args.fastq])
     elif args.bam:
-        datadfs = [nanoget.process_bam(inp, args.threads) for inp in args.bam]
+        datadf = combine_dfs(
+            dfs=[nanoget.process_bam(inp, args.threads) for inp in args.bam],
+            names=[args.bam])
     elif args.fastq_rich:
-        datadfs = [nanoget.process_fastq_rich(inp) for inp in args.fastq_rich]
+        datadf = combine_dfs(
+            dfs=[nanoget.process_fastq_rich(inp) for inp in args.fastq_rich],
+            names=args.fastq_rich)
     elif args.summary:
-        datadfs = [nanoget.process_summary(inp, args.readtype) for inp in args.summary]
+        datadf = combine_dfs(
+            dfs=[nanoget.process_summary(inp, args.readtype) for inp in args.summary],
+            names=args.summary)
     logging.info("Gathered metrics for plotting")
-    return datadfs
+    return datadf
 
 
-def make_plots():
-    pass
+def combine_dfs(dfs, names):
+    res = []
+    for df, identifier in zip(dfs, names):
+        df["dataset"] = identifier
+        res.append(df)
+    return pd.concat(res, ignore_index=True)
+
+
+def make_plots(df, path, args):
+    df["log length"] = np.log10(df["lengths"])
+    nanoplotter.violinplots(
+        df=df,
+        y="lengths",
+        figformat=args.format,
+        path=path,
+        color=args.color
+    )
+    nanoplotter.violinplots(
+        df=df,
+        y="log length",
+        figformat=args.format,
+        path=path,
+        color=args.color,
+        logBool=True
+    )
+    nanoplotter.violinplots(
+        df=df,
+        y="quals",
+        figformat=args.format,
+        path=path,
+        color=args.color
+    )
+    if args.bam:
+        nanoplotter.violinplots(
+            df=df,
+            y="percentIdentity",
+            figformat=args.format,
+            path=path,
+            color=args.color
+        )
 
 
 if __name__ == '__main__':
