@@ -19,7 +19,7 @@ def main():
     args = get_args()
     try:
         utils.make_output_dir(args.outdir)
-        utils.init_logs(args)
+        utils.init_logs(args, tool="NanoComp")
         args.format = nanoplotter.check_valid_format(args.format)
         datadf = get_input(args)
         make_plots(datadf, path.join(args.outdir, args.prefix), args)
@@ -117,21 +117,18 @@ def make_plots(df, path, args):
         y="log length",
         figformat=args.format,
         path=path,
-        logBool=True
-    )
+        logBool=True)
     nanoplotter.violinplots(
         df=df,
         y="quals",
         figformat=args.format,
-        path=path
-    )
+        path=path)
     if args.bam:
         nanoplotter.violinplots(
             df=df,
             y="percentIdentity",
             figformat=args.format,
-            path=path,
-        )
+            path=path)
 
 
 if __name__ == '__main__':
