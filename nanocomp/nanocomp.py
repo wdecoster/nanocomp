@@ -39,17 +39,11 @@ def get_args():
                         help="Set the allowed number of threads to be used by the script",
                         default=4,
                         type=int)
-    parser.add_argument("--loglength",
-                        help="Logarithmic scaling of lengths in plots.",
-                        action="store_true")
     parser.add_argument("--readtype",
                         help="Which read type to extract information about from summary. \
                              Options are 1D, 2D, 1D2",
                         default="1D",
                         choices=['1D', '2D', '1D2'])
-    parser.add_argument("-c", "--color",
-                        help="Specify a color for the plots, must be a valid matplotlib color",
-                        default="#4CB391")
     parser.add_argument("-o", "--outdir",
                         help="Specify directory in which output has to be created.",
                         default=".")
@@ -80,10 +74,7 @@ def get_args():
     target.add_argument("--listcolors",
                         help="List the colors which are available for plotting",
                         action="store_true")
-    args = parser.parse_args()
-    if args.listcolors:
-        utils.list_colors()
-    return args
+    return parser.parse_args()
 
 
 def get_input(args):
