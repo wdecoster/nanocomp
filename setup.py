@@ -27,7 +27,7 @@ setup(
         'Programming Language :: Python :: 3.5',
     ],
     keywords='nanopore sequencing plotting quality control',
-    packages=find_packages() + ['extra'],
+    packages=find_packages(),
     install_requires=['pandas',
                       'numpy',
                       'nanoplotter>=0.13.5',
@@ -39,7 +39,7 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'NanoComp=NanoComp.NanoComp:main',
+            'NanoComp=nanocomp.NanoComp:main',
         ],
     },
 )
