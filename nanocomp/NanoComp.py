@@ -117,7 +117,7 @@ def make_plots(df, path, args):
         y="log length",
         figformat=args.format,
         path=path,
-        logBool=True)
+        log="True")
     nanoplotter.violin_plot(
         df=df,
         y="quals",
