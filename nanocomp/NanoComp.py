@@ -112,19 +112,19 @@ def make_plots(df, path, args):
         y="lengths",
         figformat=args.format,
         path=path)
-    nanoplotter.violinplots(
+    nanoplotter.violin_plot(
         df=df,
         y="log length",
         figformat=args.format,
         path=path,
         logBool=True)
-    nanoplotter.violinplots(
+    nanoplotter.violin_plot(
         df=df,
         y="quals",
         figformat=args.format,
         path=path)
     if args.bam:
-        nanoplotter.violinplots(
+        nanoplotter.violin_plot(
             df=df,
             y="percentIdentity",
             figformat=args.format,
