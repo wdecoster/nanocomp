@@ -107,7 +107,7 @@ def combine_dfs(dfs, names):
 
 def make_plots(df, path, args):
     df["log length"] = np.log10(df["lengths"])
-    nanoplotter.violinplots(
+    nanoplotter.violin_plot(
         df=df,
         y="lengths",
         figformat=args.format,
