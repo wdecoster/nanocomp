@@ -1,2 +1,3 @@
 NanoComp.egg-info/
 nanocomp/__pycache__/
+.remote-sync.json
