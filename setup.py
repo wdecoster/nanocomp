@@ -30,9 +30,9 @@ setup(
     packages=find_packages(),
     install_requires=['pandas',
                       'numpy',
-                      'nanoplotter>=0.13.5',
-                      'nanoget>=0.12.0',
-                      'nanomath>=0.12.5',
+                      'nanoplotter>=0.16.5',
+                      'nanoget>=0.15.0',
+                      'nanomath>=0.13.3',
                       'NanoPlot>=0.19.1'
                       ],
     package_data={'NanoComp': []},
