@@ -1,3 +1,4 @@
+from sys import exit as sysexit
 import nanoget
 from os import path
 from argparse import ArgumentParser
@@ -57,6 +58,9 @@ def get_args():
                         type=str,
                         choices=['eps', 'jpeg', 'jpg', 'pdf', 'pgf', 'png', 'ps',
                                  'raw', 'rgba', 'svg', 'svgz', 'tif', 'tiff'])
+    parser.add_argument("-n", "--names",
+                        help="Specify the names to be used for the datasets",
+                        nargs="*")
     target = parser.add_mutually_exclusive_group(required=True)
     target.add_argument("--fastq",
                         help="Data is in default fastq format.",
@@ -67,7 +71,11 @@ def get_args():
     target.add_argument("--bam",
                         help="Data as a sorted bam file.",
                         nargs='*')
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.names:
+        if not len(args.names) == [len(i) for i in [args.fastq, args.summary, args.bam] if i][0]:
+            sysexit("ERROR: Number of names (-n) should be same as number of files specified!")
+    return args
 
 
 def get_input(args):
@@ -84,15 +92,15 @@ def get_input(args):
     if args.fastq:
         datadf = combine_dfs(
             dfs=[nanoget.process_fastq_plain(inp, args.threads) for inp in args.fastq],
-            names=[args.fastq])
+            names=args.names or args.fastq)
     elif args.bam:
         datadf = combine_dfs(
             dfs=[nanoget.process_bam(inp, args.threads) for inp in args.bam],
-            names=[args.bam])
+            names=args.names or args.bam)
     elif args.summary:
         datadf = combine_dfs(
             dfs=[nanoget.process_summary(inp, args.readtype) for inp in args.summary],
-            names=args.summary)
+            names=args.names or args.summary)
     logging.info("Gathered metrics for plotting")
     return datadf
 
@@ -117,7 +125,7 @@ def make_plots(df, path, args):
         y="log length",
         figformat=args.format,
         path=path,
-        log="True")
+        log=True)
     nanoplotter.violin_plot(
         df=df,
         y="quals",
