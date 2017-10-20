@@ -10,7 +10,7 @@ exec(open('nanocomp/version.py').read())
 setup(
     name='NanoComp',
     version=__version__,
-    description='Plotting suite for Oxford Nanopore sequencing data and alignments',
+    description='Comparing runs of Oxford Nanopore sequencing data and alignments',
     long_description=open(path.join(here, "README.rst")).read(),
     url='https://github.com/wdecoster/NanoComp',
     author='Wouter De Coster',
