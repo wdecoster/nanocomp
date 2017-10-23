@@ -21,21 +21,18 @@ NanoComp [-h] [-v] [-t THREADS] [--readtype {1D,2D,1D2}] [-o OUTDIR]
 optional arguments:
   -h, --help            show this help message and exit
   -v, --version         Print version and exit.
-  -t, --threads THREADS
-                        Set the allowed number of threads to be used by the
-                        script
+  -t, --threads THREADS Set the allowed number of threads to be used by the script
   --readtype {1D,2D,1D2}
                         Which read type to extract information about from
                         summary. Options are 1D, 2D, 1D2
-  -o, --outdir OUTDIR
-                        Specify directory in which output has to be created.
-  -p, --prefix PREFIX
-                        Specify an optional prefix to be used for the output
+  -o, --outdir OUTDIR   Specify directory in which output has to be created.
+  -p, --prefix PREFIX   Specify an optional prefix to be used for the output
                         files.
   -f, --format {eps,jpeg,jpg,pdf,pgf,png,ps,raw,rgba,svg,svgz,tif,tiff}
                         Specify the output format of the plots.
   -n [NAMES [NAMES ...]], --names [NAMES [NAMES ...]]
                         Specify the names to be used for the datasets
+  --plot {violin,box}   Which plot type to use: boxplot or violinplot (default)
   --fastq [FASTQ [FASTQ ...]]
                         Data is in default fastq format.
   --summary [SUMMARY [SUMMARY ...]]
@@ -43,3 +40,10 @@ optional arguments:
   --bam [BAM [BAM ...]]
                         Data as a sorted bam file.
 ```
+
+
+## EXAMPLES
+![https://github.com/wdecoster/nanocomp/blob/master/examples/NanoComp_log_length.png](loglength example)
+![https://github.com/wdecoster/nanocomp/blob/master/examples/box_NanoComp_percentIdentity.png](box percentIdentity example)
+
+[https://github.com/wdecoster/nanocomp/tree/master/examples](See more examples)
