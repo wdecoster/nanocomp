@@ -69,6 +69,11 @@ def get_args():
     parser.add_argument("-n", "--names",
                         help="Specify the names to be used for the datasets",
                         nargs="*")
+    parser.add_argument("--plot",
+                        help="Which plot type to use: boxplot or violinplot (default)",
+                        type=str,
+                        choices=['violin', 'box'],
+                        default="violin")
     target = parser.add_mutually_exclusive_group(required=True)
     target.add_argument("--fastq",
                         help="Data is in default fastq format.",
@@ -88,28 +93,36 @@ def get_args():
 
 def make_plots(df, path, args):
     df["log length"] = np.log10(df["lengths"])
-    nanoplotter.violin_plot(
+    if args.plot == "violin":
+        violin = True
+    else:
+        violin = False
+    nanoplotter.violin_or_box_plot(
         df=df,
         y="lengths",
         figformat=args.format,
-        path=path)
-    nanoplotter.violin_plot(
+        path=path,
+        violin=violin)
+    nanoplotter.violin_or_box_plot(
         df=df,
         y="log length",
         figformat=args.format,
         path=path,
+        violin=violin,
         log=True)
-    nanoplotter.violin_plot(
+    nanoplotter.violin_or_box_plot(
         df=df,
         y="quals",
         figformat=args.format,
-        path=path)
+        path=path,
+        violin=violin)
     if args.bam:
-        nanoplotter.violin_plot(
+        nanoplotter.violin_or_box_plot(
             df=df,
             y="percentIdentity",
             figformat=args.format,
-            path=path)
+            path=path,
+            violin=violin)
 
 
 if __name__ == '__main__':
