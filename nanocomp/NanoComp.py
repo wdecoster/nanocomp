@@ -4,7 +4,6 @@ from os import path
 from argparse import ArgumentParser
 from nanoplot import utils
 import nanoplotter
-import pandas as pd
 import numpy as np
 import logging
 from .version import __version__
