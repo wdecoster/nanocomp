@@ -43,7 +43,7 @@ optional arguments:
 
 
 ## EXAMPLES
-![https://github.com/wdecoster/nanocomp/blob/master/examples/NanoComp_log_length.png](loglength example)
-![https://github.com/wdecoster/nanocomp/blob/master/examples/box_NanoComp_percentIdentity.png](box percentIdentity example)
+![loglength example](https://github.com/wdecoster/nanocomp/blob/master/examples/NanoComp_log_length.png)
+![box percentIdentity example](https://github.com/wdecoster/nanocomp/blob/master/examples/box_NanoComp_percentIdentity.png)
 
-[https://github.com/wdecoster/nanocomp/tree/master/examples](See more examples)
+[See more examples](https://github.com/wdecoster/nanocomp/tree/master/examples)
