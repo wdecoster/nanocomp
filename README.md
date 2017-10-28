@@ -55,3 +55,5 @@ NanoComp --fastq reads1.fastq.gz reads2.fastq.gz reads3.fastq.gz reads4.fastq.gz
 ![box percentIdentity example](https://github.com/wdecoster/nanocomp/blob/master/examples/box_NanoComp_percentIdentity.png)
 
 [See more examples](https://github.com/wdecoster/nanocomp/tree/master/examples)
+
+I welcome all suggestions, bug reports, feature requests and contributions. Please leave an [issue](https://github.com/wdecoster/nanocomp/issues) or open a pull request. I will usually respond within a day, or rarely within a few days.
