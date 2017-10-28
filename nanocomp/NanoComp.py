@@ -52,6 +52,9 @@ def get_args():
                              Options are 1D, 2D, 1D2",
                         default="1D",
                         choices=['1D', '2D', '1D2'])
+    parser.add_argument("--verbose",
+                        help="Write log messages also to terminal.",
+                        action="store_true")
     parser.add_argument("-o", "--outdir",
                         help="Specify directory in which output has to be created.",
                         default=".")
