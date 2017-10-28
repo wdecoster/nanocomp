@@ -123,6 +123,10 @@ def make_plots(df, path, args):
         violin = True
     else:
         violin = False
+    nanoplotter.output_barplot(
+        df=df,
+        figformat=args.format,
+        path=path)
     nanoplotter.violin_or_box_plot(
         df=df,
         y="lengths",
