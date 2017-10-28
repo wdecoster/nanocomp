@@ -43,7 +43,7 @@ optional arguments:
                         Data as a sorted bam file.
 ```
 
-###
+### EXAMPLES
 ```
 NanoComp --bam alignment1.bam alignment2.bam alignment3.bam --outdir compare-runs
 NanoComp --fastq reads1.fastq.gz reads2.fastq.gz reads3.fastq.gz reads4.fastq.gz --names run1 run2 run3 run4
