@@ -6,10 +6,12 @@ Compare multiple runs of Oxford Nanopore sequencing data and alignments
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/wouter_decoster.svg?style=social&label=Follow%20%40wouter_decoster)](https://twitter.com/wouter_decoster)
 [![Build Status](https://travis-ci.org/wdecoster/nanocomp.svg?branch=master)](https://travis-ci.org/wdecoster/nanocomp)
 
-## INSTALLATION
-`pip install NanoComp`
+### INSTALLATION
+`pip install NanoComp`  
 
-## USAGE
+This script is written for Python3.
+
+### USAGE
 ```
 NanoComp [-h] [-v] [-t THREADS] [--readtype {1D,2D,1D2}] [-o OUTDIR]
                 [-p PREFIX]
@@ -30,7 +32,7 @@ optional arguments:
                         files.
   -f, --format {eps,jpeg,jpg,pdf,pgf,png,ps,raw,rgba,svg,svgz,tif,tiff}
                         Specify the output format of the plots.
-  -n [NAMES [NAMES ...]], --names [NAMES [NAMES ...]]
+  -n, --names [NAMES [NAMES ...]]
                         Specify the names to be used for the datasets
   --plot {violin,box}   Which plot type to use: boxplot or violinplot (default)
   --fastq [FASTQ [FASTQ ...]]
@@ -41,8 +43,14 @@ optional arguments:
                         Data as a sorted bam file.
 ```
 
+###
+```
+NanoComp --bam alignment1.bam alignment2.bam alignment3.bam --outdir compare-runs
+NanoComp --fastq reads1.fastq.gz reads2.fastq.gz reads3.fastq.gz reads4.fastq.gz --names run1 run2 run3 run4
+```
 
-## EXAMPLES
+
+### EXAMPLE OUTPUT
 ![loglength example](https://github.com/wdecoster/nanocomp/blob/master/examples/NanoComp_log_length.png)
 ![box percentIdentity example](https://github.com/wdecoster/nanocomp/blob/master/examples/box_NanoComp_percentIdentity.png)
 
