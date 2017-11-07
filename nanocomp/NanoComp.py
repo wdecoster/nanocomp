@@ -148,7 +148,7 @@ def make_plots(df, path, args):
         violin=violin)
     if args.bam:
         nanoplotter.violin_or_box_plot(
-            df=df,
+            df=df[df["percentIdentity"] > np.percentile(df["percentIdentity"], 1)],
             y="percentIdentity",
             figformat=args.format,
             path=path,
