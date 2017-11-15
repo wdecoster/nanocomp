@@ -23,13 +23,17 @@ def main():
         args.format = nanoplotter.check_valid_format(args.format)
         sources = [args.fastq, args.bam, args.summary]
         sourcename = ["fastq", "bam", "summary"]
+        if args.split_runs:
+            combine = "split_runs"
+        else:
+            combine = "track"
         datadf = nanoget.get_input(
             source=[n for n, s in zip(sourcename, sources) if s][0],
-            files=[f for f in [args.fastq, args.bam, args.summary] if f][0],
+            files=[f for f in sources if f][0],
             threads=args.threads,
             readtype=args.readtype,
             names=args.names,
-            combine="track")
+            combine=combine)
         make_plots(datadf, path.join(args.outdir, args.prefix), args)
         logging.info("Succesfully processed all input.")
     except Exception as e:
@@ -77,6 +81,10 @@ def get_args():
                              Options are 1D, 2D, 1D2",
                            default="1D",
                            choices=['1D', '2D', '1D2'])
+    filtering.add_argument("--split_runs",
+                           help="Split a summary file based on run IDs.",
+                           default=False,
+                           action="store_true")
     visual = parser.add_argument_group(
         title='Options for customizing the plots created')
     visual.add_argument("-f", "--format",
