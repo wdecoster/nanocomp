@@ -130,7 +130,7 @@ def get_args():
 def validate_split_runs_file(split_runs_file):
     """Check if structure of file is as expected and return dictionary linking names to run_IDs."""
     try:
-        content = [l.strip() for l in open(split_runs_file).readlines()]
+        content = [l.strip() for l in split_runs_file.readlines()]
         if content[0].upper().split('\t') == ['NAME', 'RUN_ID']:
             return {c.split('\t')[1]: c.split('\t')[0] for c in content[1:] if c}
         else:
