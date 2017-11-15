@@ -1,7 +1,7 @@
 from sys import exit as sysexit
 import nanoget
 from os import path
-from argparse import ArgumentParser
+from argparse import ArgumentParser, FileType
 from nanoplot import utils
 import nanoplotter
 import numpy as np
@@ -24,16 +24,16 @@ def main():
         sources = [args.fastq, args.bam, args.summary]
         sourcename = ["fastq", "bam", "summary"]
         if args.split_runs:
-            combine = "split_runs"
-        else:
-            combine = "track"
+            split_dict = validate_split_runs_file(args.split_runs)
         datadf = nanoget.get_input(
             source=[n for n, s in zip(sourcename, sources) if s][0],
             files=[f for f in sources if f][0],
             threads=args.threads,
             readtype=args.readtype,
             names=args.names,
-            combine=combine)
+            combine="track")
+        if args.split_runs:
+            change_identifiers(datadf, split_dict)
         make_plots(datadf, path.join(args.outdir, args.prefix), args)
         logging.info("Succesfully processed all input.")
     except Exception as e:
@@ -82,9 +82,11 @@ def get_args():
                            default="1D",
                            choices=['1D', '2D', '1D2'])
     filtering.add_argument("--split_runs",
-                           help="Split a summary file based on run IDs.",
+                           help="File: Split the summary on run IDs and use names in tsv file. "
+                                "Mandatory header fields are 'NAME' and 'RUN_ID'.",
                            default=False,
-                           action="store_true")
+                           type=FileType('r'),
+                           metavar="TSV_FILE")
     visual = parser.add_argument_group(
         title='Options for customizing the plots created')
     visual.add_argument("-f", "--format",
@@ -123,6 +125,26 @@ def get_args():
         if not len(args.names) == [len(i) for i in [args.fastq, args.summary, args.bam] if i][0]:
             sysexit("ERROR: Number of names (-n) should be same as number of files specified!")
     return args
+
+
+def validate_split_runs_file(split_runs_file):
+    """Check if structure of file is as expected and return dictionary linking names to run_IDs."""
+    try:
+        content = [l.strip() for l in open(split_runs_file).readlines()]
+        if content[0].upper().split('\t') == ['NAME', 'RUN_ID']:
+            return {c.split('\t')[1]: c.split('\t')[0] for c in content[1:] if c}
+        else:
+            sysexit("ERROR: Mandatory header of --split_runs tsv file not found: 'NAME', 'RUN_ID'")
+            logging.error("Mandatory header of --split_runs tsv file not found: 'NAME', 'RUN_ID'")
+    except IndexError:
+        sysexit("ERROR: Format of --split_runs tab separated file not as expected")
+        logging.error("ERROR: Format of --split_runs tab separated file not as expected")
+
+
+def change_identifiers(datadf, split_dict):
+    """Change the dataset identifiers based on the names in the dictionary."""
+    for rid, name in split_dict.items():
+        datadf.loc[datadf["runIDs"] == rid, "dataset"] = name
 
 
 def make_plots(df, path, args):
