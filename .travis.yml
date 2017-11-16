@@ -3,17 +3,16 @@ language: python
 python:
   - "3.4"
   - "3.5"
-  - "3.5-dev"
+  - "3.5-dev" # 3.5 development branch
   - "3.6"
-  - "3.6-dev"
+  - "3.6-dev" # 3.6 development branch
+# command to install dependencies
+install: "pip install NanoComp"
+# command to run tests
+script: NanoComp -h
 
-before_install:
-  - cp README.md README.rst
-  - pip install flake8
-
-install:
-  - pip install -e .
-
-script:
-  - bash scripts/test.sh
-  - flake8 nanocomp/NanoComp.py
+notifications:
+  email: false
+  webhooks:
+    urls:
+        - https://webhooks.gitter.im/e/4b1c45cea6826ce475c2
