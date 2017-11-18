@@ -30,7 +30,7 @@ setup(
     packages=find_packages() + ['scripts'],
     install_requires=['pandas',
                       'numpy',
-                      'nanoplotter>=0.25.1',
+                      'nanoplotter>=0.26.0',
                       'nanoget>=1.1.0',
                       'nanomath>=0.13.3',
                       'NanoPlot>=0.19.1'

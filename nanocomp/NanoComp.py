@@ -109,6 +109,10 @@ def get_args():
                         type=str,
                         choices=['violin', 'box'],
                         default="violin")
+    visual.add_argument("--title",
+                        help="Add a title to all plots, requires quoting if using spaces",
+                        type=str,
+                        default=None)
     target = parser.add_argument_group(
         title="Input data sources, one of these is required.")
     mtarget = target.add_mutually_exclusive_group(
@@ -161,33 +165,38 @@ def make_plots(df, path, args):
     nanoplotter.output_barplot(
         df=df,
         figformat=args.format,
-        path=path)
+        path=path,
+        title=args.title)
     nanoplotter.violin_or_box_plot(
         df=df,
         y="lengths",
         figformat=args.format,
         path=path,
-        violin=violin)
+        violin=violin,
+        title=args.title)
     nanoplotter.violin_or_box_plot(
         df=df,
         y="log length",
         figformat=args.format,
         path=path,
         violin=violin,
-        log=True)
+        log=True,
+        title=args.title)
     nanoplotter.violin_or_box_plot(
         df=df,
         y="quals",
         figformat=args.format,
         path=path,
-        violin=violin)
+        violin=violin,
+        title=args.title)
     if args.bam:
         nanoplotter.violin_or_box_plot(
             df=df[df["percentIdentity"] > np.percentile(df["percentIdentity"], 1)],
             y="percentIdentity",
             figformat=args.format,
             path=path,
-            violin=violin)
+            violin=violin,
+            title=args.title)
 
 
 if __name__ == '__main__':
