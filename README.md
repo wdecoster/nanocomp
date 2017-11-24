@@ -27,7 +27,8 @@ General options:
   -o, --outdir OUTDIR   Specify directory in which output has to be created.
   -p, --prefix PREFIX   Specify an optional prefix to be used for the output files.
   --verbose             Write log messages also to terminal.
-
+  --raw                 Store the extracted data in tab separated file.
+  
   Options for customizing the plots created:
     -f, --format {eps,jpeg,jpg,pdf,pgf,png,ps,raw,rgba,svg,svgz,tif,tiff}
                           Specify the output format of the plots.

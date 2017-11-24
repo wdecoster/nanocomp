@@ -34,6 +34,8 @@ def main():
             readtype=args.readtype,
             names=args.names,
             combine="track")
+        if args.raw:
+            datadf.to_csv("NanoComp-data.tsv.gz", sep="\t", index=False, compression="gzip")
         if args.split_runs:
             change_identifiers(datadf, split_dict)
         identifiers = list(datadf["dataset"].unique())
@@ -81,6 +83,9 @@ def get_args():
                          type=str)
     general.add_argument("--verbose",
                          help="Write log messages also to terminal.",
+                         action="store_true")
+    general.add_argument("--raw",
+                         help="Store the extracted data in tab separated file.",
                          action="store_true")
     filtering = parser.add_argument_group(
         title='Options for filtering or transforming input prior to plotting')
