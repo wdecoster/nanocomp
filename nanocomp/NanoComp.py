@@ -7,6 +7,7 @@ import nanoplotter
 import numpy as np
 import logging
 from .version import __version__
+from nanomath import write_stats
 
 
 def main():
@@ -34,6 +35,11 @@ def main():
             combine="track")
         if args.split_runs:
             change_identifiers(datadf, split_dict)
+        identifiers = list(datadf["dataset"].unique())
+        write_stats(
+            datadfs=[datadf[datadf["dataset"] == i] for i in identifiers],
+            outputfile=path.join(args.outdir, args.prefix + "NanoStat.txt"),
+            names=identifiers)
         make_plots(datadf, path.join(args.outdir, args.prefix), args)
         logging.info("Succesfully processed all input.")
     except Exception as e:
