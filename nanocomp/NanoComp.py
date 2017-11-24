@@ -8,6 +8,7 @@ import numpy as np
 import logging
 from .version import __version__
 from nanomath import write_stats
+from textwrap import wrap
 
 
 def main():
@@ -20,7 +21,7 @@ def main():
     args = get_args()
     try:
         utils.make_output_dir(args.outdir)
-        utils.init_logs(args, tool="NanoComp")
+        logfile = utils.init_logs(args, tool="NanoComp")
         args.format = nanoplotter.check_valid_format(args.format)
         sources = [args.fastq, args.bam, args.summary]
         sourcename = ["fastq", "bam", "summary"]
@@ -38,9 +39,10 @@ def main():
         identifiers = list(datadf["dataset"].unique())
         write_stats(
             datadfs=[datadf[datadf["dataset"] == i] for i in identifiers],
-            outputfile=path.join(args.outdir, args.prefix + "NanoStat.txt"),
+            outputfile=path.join(args.outdir, args.prefix + "NanoStats.txt"),
             names=identifiers)
-        make_plots(datadf, path.join(args.outdir, args.prefix), args)
+        plots = make_plots(datadf, path.join(args.outdir, args.prefix), args)
+        make_report(plots, path.join(args.outdir, args.prefix), logfile)
         logging.info("Succesfully processed all input.")
     except Exception as e:
         logging.error(e, exc_info=True)
@@ -163,41 +165,118 @@ def make_plots(df, path, args):
         violin = True
     else:
         violin = False
-    nanoplotter.output_barplot(
-        df=df,
-        figformat=args.format,
-        path=path,
-        title=args.title)
-    nanoplotter.violin_or_box_plot(
-        df=df,
-        y="lengths",
-        figformat=args.format,
-        path=path,
-        violin=violin,
-        title=args.title)
-    nanoplotter.violin_or_box_plot(
-        df=df,
-        y="log length",
-        figformat=args.format,
-        path=path,
-        violin=violin,
-        log=True,
-        title=args.title)
-    nanoplotter.violin_or_box_plot(
-        df=df,
-        y="quals",
-        figformat=args.format,
-        path=path,
-        violin=violin,
-        title=args.title)
-    if args.bam:
+    plots = []
+    plots.extend(
+        nanoplotter.output_barplot(
+            df=df,
+            figformat=args.format,
+            path=path,
+            title=args.title)
+    )
+    plots.extend(
         nanoplotter.violin_or_box_plot(
-            df=df[df["percentIdentity"] > np.percentile(df["percentIdentity"], 1)],
-            y="percentIdentity",
+            df=df,
+            y="lengths",
             figformat=args.format,
             path=path,
             violin=violin,
             title=args.title)
+    )
+    plots.extend(
+        nanoplotter.violin_or_box_plot(
+            df=df,
+            y="log length",
+            figformat=args.format,
+            path=path,
+            violin=violin,
+            log=True,
+            title=args.title)
+    )
+    plots.extend(
+        nanoplotter.violin_or_box_plot(
+            df=df,
+            y="quals",
+            figformat=args.format,
+            path=path,
+            violin=violin,
+            title=args.title)
+    )
+    if args.bam:
+        plots.extend(
+            nanoplotter.violin_or_box_plot(
+                df=df[df["percentIdentity"] > np.percentile(df["percentIdentity"], 1)],
+                y="percentIdentity",
+                figformat=args.format,
+                path=path,
+                violin=violin,
+                title=args.title)
+        )
+    return plots
+
+
+def make_report(plots, path, logfile):
+    '''
+    Creates a fat html report based on the previously created files
+    plots is a list of Plot objects defined by a path and title
+    statsfile is the file to which the stats have been saved,
+    which is parsed to a table (rather dodgy)
+    '''
+    logging.info("Writing html report.")
+    html_head = """<!DOCTYPE html>
+    <html>
+        <head>
+        <meta charset="UTF-8">
+            <style>
+            table, th, td {
+                text-align: left;
+                padding: 2px;
+                /* border: 1px solid black;
+                border-collapse: collapse; */
+            }
+            h2 {
+                line-height: 0pt;
+            }
+            </style>
+            <title>NanoComp Report</title>
+        </head>"""
+    html_content = ["\n<body>\n<h1>NanoComp report</h1>"]
+    html_content.append("<h2>Summary statistics</h2>")
+    with open(path + "NanoStats.txt") as stats:
+        html_content.append('\n<table>')
+        for line in stats:
+            html_content.append('')
+            linesplit = line.strip().split('\t')
+            if line.startswith('Data'):
+                html_content.append('\n<tr></tr>\n<tr>\n\t<td colspan="2">' +
+                                    line.strip() + '</td>\n</tr>')
+                break
+            if len(linesplit) > 1:
+                data = ''.join(["<td>" + e + "</td>" for e in linesplit])
+                html_content.append("<tr>\n\t" + data + "\n</tr>")
+            else:
+                html_content.append('\n<tr></tr>\n<tr>\n\t<td colspan="2"><b>' +
+                                    line.strip() + '</b></td>\n</tr>')
+        for line in stats:
+            html_content.append('\n<tr>\n\t<td colspan="2">' +
+                                line.strip() + '</td>\n</tr>')
+        html_content.append('</table>')
+    html_content.append('\n<br>\n<br>\n<br>\n<br>')
+    html_content.append("<h2>Plots</h2>")
+    for plot in plots:
+        html_content.append("\n<h3>" + plot.title + "</h3>\n" + plot.encode())
+        html_content.append('\n<br>\n<br>\n<br>\n<br>')
+    if logfile:
+        html_content.append("<h2>Log file</h2>")
+        with open(logfile) as logs:
+            html_content.append('<pre>')
+            for line in logs:
+                html_content.append('\n'.join(wrap(line.rstrip(), width=150)))
+            html_content.append('</pre>')
+    html_body = '\n'.join(html_content) + "</body></html>"
+    html_str = html_head + html_body
+    with open(path + "NanoComp-report.html", "w") as html_file:
+        html_file.write(html_str)
+    return path + "NanoComp-report.html"
 
 
 if __name__ == '__main__':
