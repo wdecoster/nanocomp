@@ -23,6 +23,8 @@ def main():
         utils.make_output_dir(args.outdir)
         logfile = utils.init_logs(args, tool="NanoComp")
         args.format = nanoplotter.check_valid_format(args.format)
+        settings = vars(args)
+        settings["path"] = path.join(args.outdir, args.prefix)
         sources = [args.fastq, args.bam, args.summary]
         sourcename = ["fastq", "bam", "summary"]
         if args.split_runs:
@@ -41,9 +43,9 @@ def main():
         identifiers = list(datadf["dataset"].unique())
         write_stats(
             datadfs=[datadf[datadf["dataset"] == i] for i in identifiers],
-            outputfile=path.join(args.outdir, args.prefix + "NanoStats.txt"),
+            outputfile=settings["path"] + "NanoStats.txt",
             names=identifiers)
-        plots = make_plots(datadf, path.join(args.outdir, args.prefix), args)
+        plots = make_plots(datadf, settings)
         make_report(plots, path.join(args.outdir, args.prefix), logfile)
         logging.info("Succesfully processed all input.")
     except Exception as e:
@@ -164,9 +166,9 @@ def change_identifiers(datadf, split_dict):
         datadf.loc[datadf["runIDs"] == rid, "dataset"] = name
 
 
-def make_plots(df, path, args):
+def make_plots(df, settings):
     df["log length"] = np.log10(df["lengths"])
-    if args.plot == "violin":
+    if settings["plot"] == "violin":
         violin = True
     else:
         violin = False
@@ -174,47 +176,47 @@ def make_plots(df, path, args):
     plots.extend(
         nanoplotter.output_barplot(
             df=df,
-            figformat=args.format,
-            path=path,
-            title=args.title)
+            figformat=settings["format"],
+            path=settings["path"],
+            title=settings["title"])
     )
     plots.extend(
         nanoplotter.violin_or_box_plot(
             df=df,
             y="lengths",
-            figformat=args.format,
+            figformat=settings["format"],
             path=path,
             violin=violin,
-            title=args.title)
+            title=settings["title"])
     )
     plots.extend(
         nanoplotter.violin_or_box_plot(
             df=df,
             y="log length",
-            figformat=args.format,
+            figformat=settings["format"],
             path=path,
             violin=violin,
             log=True,
-            title=args.title)
+            title=settings["title"])
     )
     plots.extend(
         nanoplotter.violin_or_box_plot(
             df=df,
             y="quals",
-            figformat=args.format,
+            figformat=settings["format"],
             path=path,
             violin=violin,
-            title=args.title)
+            title=settings["title"])
     )
-    if args.bam:
+    if settings["bam"]:
         plots.extend(
             nanoplotter.violin_or_box_plot(
                 df=df[df["percentIdentity"] > np.percentile(df["percentIdentity"], 1)],
                 y="percentIdentity",
-                figformat=args.format,
+                figformat=settings["format"],
                 path=path,
                 violin=violin,
-                title=args.title)
+                title=settings["title"])
         )
     return plots
 
