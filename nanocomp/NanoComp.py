@@ -185,7 +185,7 @@ def make_plots(df, settings):
             df=df,
             y="lengths",
             figformat=settings["format"],
-            path=path,
+            path=settings["path"],
             violin=violin,
             title=settings["title"])
     )
@@ -194,7 +194,7 @@ def make_plots(df, settings):
             df=df,
             y="log length",
             figformat=settings["format"],
-            path=path,
+            path=settings["path"],
             violin=violin,
             log=True,
             title=settings["title"])
@@ -204,7 +204,7 @@ def make_plots(df, settings):
             df=df,
             y="quals",
             figformat=settings["format"],
-            path=path,
+            path=settings["path"],
             violin=violin,
             title=settings["title"])
     )
@@ -214,7 +214,7 @@ def make_plots(df, settings):
                 df=df[df["percentIdentity"] > np.percentile(df["percentIdentity"], 1)],
                 y="percentIdentity",
                 figformat=settings["format"],
-                path=path,
+                path=settings["path"],
                 violin=violin,
                 title=settings["title"])
         )
