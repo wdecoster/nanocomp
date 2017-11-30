@@ -35,11 +35,14 @@ def main():
             threads=args.threads,
             readtype=args.readtype,
             names=args.names,
+            barcoded=args.barcoded,
             combine="track")
         if args.raw:
             datadf.to_csv("NanoComp-data.tsv.gz", sep="\t", index=False, compression="gzip")
         if args.split_runs:
             change_identifiers(datadf, split_dict)
+        if args.barcoded:
+            datadf["dataset"] = datadf["barcode"]
         identifiers = list(datadf["dataset"].unique())
         write_stats(
             datadfs=[datadf[datadf["dataset"] == i] for i in identifiers],
@@ -96,6 +99,9 @@ def get_args():
                              Options are 1D, 2D, 1D2",
                            default="1D",
                            choices=['1D', '2D', '1D2'])
+    filtering.add_argument("--barcoded",
+                           help="Barcoded experiment in summary format, splitting per barcode.",
+                           action="store_true")
     filtering.add_argument("--split_runs",
                            help="File: Split the summary on run IDs and use names in tsv file. "
                                 "Mandatory header fields are 'NAME' and 'RUN_ID'.",
