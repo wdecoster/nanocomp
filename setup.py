@@ -32,7 +32,7 @@ setup(
                       'numpy',
                       'nanoplotter>=0.26.0',
                       'nanoget>=1.1.0',
-                      'nanomath>=0.13.3',
+                      'nanomath>=0.15.0',
                       'NanoPlot>=0.19.1'
                       ],
     package_data={'NanoComp': []},
