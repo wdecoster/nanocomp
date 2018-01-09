@@ -62,7 +62,7 @@ def get_args():
     NanoComp --fastq reads1.fastq.gz reads2.fastq.gz reads3.fastq.gz  --names run1 run2 run3
     """
     parser = ArgumentParser(
-        description="Compares Oxford Nanopore Sequencing datasets.",
+        description="Compares long read sequencing datasets.",
         epilog=epilog,
         formatter_class=utils.custom_formatter,
         add_help=False)

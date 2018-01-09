@@ -1,7 +1,7 @@
 # NanoComp
 
 
-Compare multiple runs of Oxford Nanopore sequencing data and alignments
+Compare multiple runs of long read sequencing data and alignments
 
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/wouter_decoster.svg?style=social&label=Follow%20%40wouter_decoster)](https://twitter.com/wouter_decoster)
 [![Build Status](https://travis-ci.org/wdecoster/nanocomp.svg?branch=master)](https://travis-ci.org/wdecoster/nanocomp)
@@ -19,8 +19,6 @@ NanoComp [-h] [-v] [-t THREADS] [-o OUTDIR] [-p PREFIX] [--verbose]
                 [-f {eps,jpeg,jpg,pdf,pgf,png,ps,raw,rgba,svg,svgz,tif,tiff}]
                 [-n names [names ...]] [--plot {violin,box}] [--title TITLE]
                 (--fastq files [files ...] | --summary files [files ...] | --bam files [files ...])
-
-Compares Oxford Nanopore Sequencing datasets.
 
 General options:
   -h, --help            show the help and exit
