@@ -205,16 +205,17 @@ def make_plots(df, settings):
             log=True,
             title=settings["title"])
     )
-    plots.extend(
-        nanoplotter.violin_or_box_plot(
-            df=df,
-            y="quals",
-            figformat=settings["format"],
-            path=settings["path"],
-            violin=violin,
-            title=settings["title"])
-    )
-    if settings["bam"]:
+    if "quals" in df:
+        plots.extend(
+            nanoplotter.violin_or_box_plot(
+                df=df,
+                y="quals",
+                figformat=settings["format"],
+                path=settings["path"],
+                violin=violin,
+                title=settings["title"])
+        )
+    if "percentIdentity" in df:
         plots.extend(
             nanoplotter.violin_or_box_plot(
                 df=df[df["percentIdentity"] > np.percentile(df["percentIdentity"], 1)],
