@@ -42,8 +42,8 @@ Options for filtering or transforming input prior to plotting:
 Options for customizing the plots created:
   -f, --format {eps,jpeg,jpg,pdf,pgf,png,ps,raw,rgba,svg,svgz,tif,tiff}
                         Specify the output format of the plots.
-  -n, --names names [names ...]
-                        Specify the names to be used for the datasets
+  -n, --names names     Specify the names to be used for the datasets
+  -c, --colors colors   Specify the colors to be used for the datasets
   --plot {violin,box}   Which plot type to use: boxplot or violinplot (default)
   --title TITLE         Add a title to all plots, requires quoting if using spaces
 

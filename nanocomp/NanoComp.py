@@ -120,6 +120,10 @@ def get_args():
                         help="Specify the names to be used for the datasets",
                         nargs="+",
                         metavar="names")
+    visual.add_argument("-c", "--colors",
+                        help="Specify the colors to be used for the datasets",
+                        nargs="+",
+                        metavar="colors")
     visual.add_argument("--plot",
                         help="Which plot type to use: boxplot or violinplot (default)",
                         type=str,
@@ -154,6 +158,9 @@ def get_args():
         if not len(args.names) == [len(i) for i in
                                    [args.fastq, args.summary, args.bam, args.fasta] if i][0]:
             sysexit("ERROR: Number of names (-n) should be same as number of files specified!")
+    if args.colors:
+        if not len(args.colors) == [len(i) for i in [args.fastq, args.summary, args.bam] if i][0]:
+            sysexit("ERROR: Number of colors (-c) should be same as number of files specified!")
     return args
 
 
@@ -189,7 +196,8 @@ def make_plots(df, settings):
             df=df,
             figformat=settings["format"],
             path=settings["path"],
-            title=settings["title"])
+            title=settings["title"],
+            palette=settings["colors"])
     )
     plots.extend(
         nanoplotter.violin_or_box_plot(
@@ -198,7 +206,8 @@ def make_plots(df, settings):
             figformat=settings["format"],
             path=settings["path"],
             violin=violin,
-            title=settings["title"])
+            title=settings["title"],
+            palette=settings["colors"])
     )
     plots.extend(
         nanoplotter.violin_or_box_plot(
@@ -208,7 +217,8 @@ def make_plots(df, settings):
             path=settings["path"],
             violin=violin,
             log=True,
-            title=settings["title"])
+            title=settings["title"],
+            palette=settings["colors"])
     )
     if "quals" in df:
         plots.extend(
@@ -218,7 +228,8 @@ def make_plots(df, settings):
                 figformat=settings["format"],
                 path=settings["path"],
                 violin=violin,
-                title=settings["title"])
+                title=settings["title"],
+                palette=settings["colors"])
         )
     if "percentIdentity" in df:
         plots.extend(
@@ -228,7 +239,8 @@ def make_plots(df, settings):
                 figformat=settings["format"],
                 path=settings["path"],
                 violin=violin,
-                title=settings["title"])
+                title=settings["title"],
+                palette=settings["colors"])
         )
     return plots
 
