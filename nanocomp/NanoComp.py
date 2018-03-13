@@ -1,4 +1,4 @@
-from sys import exit as sysexit
+import sys
 import nanoget
 from os import path
 from argparse import ArgumentParser, FileType
@@ -157,10 +157,13 @@ def get_args():
     if args.names:
         if not len(args.names) == [len(i) for i in
                                    [args.fastq, args.summary, args.bam, args.fasta] if i][0]:
-            sysexit("ERROR: Number of names (-n) should be same as number of files specified!")
+            sys.exit("ERROR: Number of names (-n) should be same as number of files specified!")
+        if len(args.names) != len(set(args.names)):
+            sys.stderr.write("\nWarning: duplicate values in -n/--names detected. ")
+            sys.stderr.write("Datasets with the same name will be merged.\n\n")
     if args.colors:
         if not len(args.colors) == [len(i) for i in [args.fastq, args.summary, args.bam] if i][0]:
-            sysexit("ERROR: Number of colors (-c) should be same as number of files specified!")
+            sys.exit("ERROR: Number of colors (-c) should be same as number of files specified!")
     return args
 
 
