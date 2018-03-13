@@ -174,10 +174,10 @@ def validate_split_runs_file(split_runs_file):
         if content[0].upper().split('\t') == ['NAME', 'RUN_ID']:
             return {c.split('\t')[1]: c.split('\t')[0] for c in content[1:] if c}
         else:
-            sysexit("ERROR: Mandatory header of --split_runs tsv file not found: 'NAME', 'RUN_ID'")
+            sys.exit("ERROR: Mandatory header of --split_runs tsv file not found: 'NAME', 'RUN_ID'")
             logging.error("Mandatory header of --split_runs tsv file not found: 'NAME', 'RUN_ID'")
     except IndexError:
-        sysexit("ERROR: Format of --split_runs tab separated file not as expected")
+        sys.exit("ERROR: Format of --split_runs tab separated file not as expected")
         logging.error("ERROR: Format of --split_runs tab separated file not as expected")
 
 
