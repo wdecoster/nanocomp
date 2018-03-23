@@ -244,7 +244,7 @@ def make_plots(df, settings):
                 y="percentIdentity",
                 figformat=settings["format"],
                 path=settings["path"],
-                y_name="Percent reference identity"
+                y_name="Percent reference identity",
                 violin=violin,
                 title=settings["title"],
                 palette=settings["colors"])
