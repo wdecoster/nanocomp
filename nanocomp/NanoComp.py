@@ -208,6 +208,7 @@ def make_plots(df, settings):
             y="lengths",
             figformat=settings["format"],
             path=settings["path"],
+            y_name="Read length",
             violin=violin,
             title=settings["title"],
             palette=settings["colors"])
@@ -218,6 +219,7 @@ def make_plots(df, settings):
             y="log length",
             figformat=settings["format"],
             path=settings["path"],
+            y_name="Log-transformed read length",
             violin=violin,
             log=True,
             title=settings["title"],
@@ -230,6 +232,7 @@ def make_plots(df, settings):
                 y="quals",
                 figformat=settings["format"],
                 path=settings["path"],
+                y_name="Average base call quality score",
                 violin=violin,
                 title=settings["title"],
                 palette=settings["colors"])
