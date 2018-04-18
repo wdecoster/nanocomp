@@ -257,6 +257,13 @@ def make_plots(df, settings):
                 title=settings["title"],
                 palette=settings["colors"])
         )
+    plots.extend(
+        nanoplotter.overlay_histogram(
+            df=df,
+            path=settings["path"],
+            palette=settings["colors"]
+        )
+    )
     return plots
 
 
