@@ -8,7 +8,6 @@ import numpy as np
 import logging
 from .version import __version__
 from nanomath import write_stats
-from textwrap import wrap
 
 
 def main():
@@ -21,7 +20,7 @@ def main():
     args = get_args()
     try:
         utils.make_output_dir(args.outdir)
-        logfile = utils.init_logs(args, tool="NanoComp")
+        utils.init_logs(args, tool="NanoComp")
         args.format = nanoplotter.check_valid_format(args.format)
         settings = vars(args)
         settings["path"] = path.join(args.outdir, args.prefix)
