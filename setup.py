@@ -32,7 +32,7 @@ setup(
     python_requires='>=3',
     install_requires=['pandas',
                       'numpy',
-                      'nanoplotter>=0.35.8',
+                      'nanoplotter>=0.37.0',
                       'nanoget>=1.4.0',
                       'nanomath>=0.15.3',
                       'NanoPlot>=0.19.1'
