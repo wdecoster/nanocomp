@@ -252,7 +252,6 @@ def make_plots(df, settings):
         plots.extend(
             nanoplotter.compare_cumulative_yields(
                 df=df,
-                figformat=settings["format"],
                 path=settings["path"],
                 title=settings["title"],
                 palette=settings["colors"])
