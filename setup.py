@@ -11,7 +11,8 @@ setup(
     name='NanoComp',
     version=__version__,
     description='Comparing runs of Oxford Nanopore sequencing data and alignments',
-    long_description=open(path.join(here, "README.rst")).read(),
+    long_description=open(path.join(here, "README.md")).read(),
+    long_description_content_type="text/markdown",
     url='https://github.com/wdecoster/NanoComp',
     author='Wouter De Coster',
     author_email='decosterwouter@gmail.com',
@@ -31,7 +32,7 @@ setup(
     python_requires='>=3',
     install_requires=['pandas',
                       'numpy',
-                      'nanoplotter>=0.33.0',
+                      'nanoplotter>=0.38.0',
                       'nanoget>=1.4.0',
                       'nanomath>=0.15.3',
                       'NanoPlot>=0.19.1'

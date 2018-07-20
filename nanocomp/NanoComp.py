@@ -1,4 +1,4 @@
-from sys import exit as sysexit
+import sys
 import nanoget
 from os import path
 from argparse import ArgumentParser, FileType
@@ -8,7 +8,6 @@ import numpy as np
 import logging
 from .version import __version__
 from nanomath import write_stats
-from textwrap import wrap
 
 
 def main():
@@ -21,7 +20,7 @@ def main():
     args = get_args()
     try:
         utils.make_output_dir(args.outdir)
-        logfile = utils.init_logs(args, tool="NanoComp")
+        utils.init_logs(args, tool="NanoComp")
         args.format = nanoplotter.check_valid_format(args.format)
         settings = vars(args)
         settings["path"] = path.join(args.outdir, args.prefix)
@@ -49,7 +48,7 @@ def main():
             outputfile=settings["path"] + "NanoStats.txt",
             names=identifiers)
         plots = make_plots(datadf, settings)
-        make_report(plots, path.join(args.outdir, args.prefix), logfile)
+        make_report(plots, path.join(args.outdir, args.prefix))
         logging.info("Succesfully processed all input.")
     except Exception as e:
         logging.error(e, exc_info=True)
@@ -158,10 +157,13 @@ def get_args():
     if args.names:
         if not len(args.names) == [len(i) for i in
                                    [args.fastq, args.summary, args.bam, args.fasta] if i][0]:
-            sysexit("ERROR: Number of names (-n) should be same as number of files specified!")
+            sys.exit("ERROR: Number of names (-n) should be same as number of files specified!")
+        if len(args.names) != len(set(args.names)):
+            sys.stderr.write("\nWarning: duplicate values in -n/--names detected. ")
+            sys.stderr.write("Datasets with the same name will be merged.\n\n")
     if args.colors:
         if not len(args.colors) == [len(i) for i in [args.fastq, args.summary, args.bam] if i][0]:
-            sysexit("ERROR: Number of colors (-c) should be same as number of files specified!")
+            sys.exit("ERROR: Number of colors (-c) should be same as number of files specified!")
     return args
 
 
@@ -172,10 +174,10 @@ def validate_split_runs_file(split_runs_file):
         if content[0].upper().split('\t') == ['NAME', 'RUN_ID']:
             return {c.split('\t')[1]: c.split('\t')[0] for c in content[1:] if c}
         else:
-            sysexit("ERROR: Mandatory header of --split_runs tsv file not found: 'NAME', 'RUN_ID'")
+            sys.exit("ERROR: Mandatory header of --split_runs tsv file not found: 'NAME', 'RUN_ID'")
             logging.error("Mandatory header of --split_runs tsv file not found: 'NAME', 'RUN_ID'")
     except IndexError:
-        sysexit("ERROR: Format of --split_runs tab separated file not as expected")
+        sys.exit("ERROR: Format of --split_runs tab separated file not as expected")
         logging.error("ERROR: Format of --split_runs tab separated file not as expected")
 
 
@@ -206,6 +208,7 @@ def make_plots(df, settings):
             y="lengths",
             figformat=settings["format"],
             path=settings["path"],
+            y_name="Read length",
             violin=violin,
             title=settings["title"],
             palette=settings["colors"])
@@ -216,6 +219,7 @@ def make_plots(df, settings):
             y="log length",
             figformat=settings["format"],
             path=settings["path"],
+            y_name="Log-transformed read length",
             violin=violin,
             log=True,
             title=settings["title"],
@@ -228,6 +232,7 @@ def make_plots(df, settings):
                 y="quals",
                 figformat=settings["format"],
                 path=settings["path"],
+                y_name="Average base call quality score",
                 violin=violin,
                 title=settings["title"],
                 palette=settings["colors"])
@@ -239,6 +244,7 @@ def make_plots(df, settings):
                 y="percentIdentity",
                 figformat=settings["format"],
                 path=settings["path"],
+                y_name="Percent reference identity",
                 violin=violin,
                 title=settings["title"],
                 palette=settings["colors"])
@@ -247,15 +253,21 @@ def make_plots(df, settings):
         plots.extend(
             nanoplotter.compare_cumulative_yields(
                 df=df,
-                figformat=settings["format"],
                 path=settings["path"],
                 title=settings["title"],
                 palette=settings["colors"])
         )
+    plots.extend(
+        nanoplotter.overlay_histogram(
+            df=df,
+            path=settings["path"],
+            palette=settings["colors"]
+        )
+    )
     return plots
 
 
-def make_report(plots, path, logfile):
+def make_report(plots, path):
     '''
     Creates a fat html report based on the previously created files
     plots is a list of Plot objects defined by a path and title
@@ -306,13 +318,6 @@ def make_report(plots, path, logfile):
     for plot in plots:
         html_content.append("\n<h3>" + plot.title + "</h3>\n" + plot.encode())
         html_content.append('\n<br>\n<br>\n<br>\n<br>')
-    if logfile:
-        html_content.append("<h2>Log file</h2>")
-        with open(logfile) as logs:
-            html_content.append('<pre>')
-            for line in logs:
-                html_content.append('\n'.join(wrap(line.rstrip(), width=150)))
-            html_content.append('</pre>')
     html_body = '\n'.join(html_content) + "</body></html>"
     html_str = html_head + html_body
     with open(path + "NanoComp-report.html", "w") as html_file:

@@ -80,3 +80,7 @@ NanoComp --fastq reads1.fastq.gz reads2.fastq.gz reads3.fastq.gz reads4.fastq.gz
 [See more examples](https://github.com/wdecoster/nanocomp/tree/master/examples)
 
 I welcome all suggestions, bug reports, feature requests and contributions. Please leave an [issue](https://github.com/wdecoster/nanocomp/issues) or open a pull request. I will usually respond within a day, or rarely within a few days.
+
+
+## CITATION
+If you use this tool, please consider citing our [publication](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/bty149/4934939).
