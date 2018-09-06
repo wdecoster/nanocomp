@@ -47,8 +47,9 @@ def main():
             datadfs=[datadf[datadf["dataset"] == i] for i in identifiers],
             outputfile=settings["path"] + "NanoStats.txt",
             names=identifiers)
-        plots = make_plots(datadf, settings)
-        make_report(plots, path.join(args.outdir, args.prefix))
+        if args.plot in ['violin', 'box']:
+            plots = make_plots(datadf, settings)
+            make_report(plots, path.join(args.outdir, args.prefix))
         logging.info("Succesfully processed all input.")
     except Exception as e:
         logging.error(e, exc_info=True)
@@ -124,9 +125,10 @@ def get_args():
                         nargs="+",
                         metavar="colors")
     visual.add_argument("--plot",
-                        help="Which plot type to use: boxplot or violinplot (default)",
+                        help="Which plot type to use: "
+                             "'boxplot', 'violinplot' (default) or 'false' (no plots)",
                         type=str,
-                        choices=['violin', 'box'],
+                        choices=['violin', 'box', 'false'],
                         default="violin")
     visual.add_argument("--title",
                         help="Add a title to all plots, requires quoting if using spaces",
