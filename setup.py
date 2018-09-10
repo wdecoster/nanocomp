@@ -35,7 +35,7 @@ setup(
                       'nanoplotter>=0.38.0',
                       'nanoget>=1.4.0',
                       'nanomath>=0.15.3',
-                      'NanoPlot>=0.19.1'
+                      'NanoPlot>=1.17.3'
                       ],
     package_data={'NanoComp': []},
     package_dir={'NanoComp': 'NanoComp'},
