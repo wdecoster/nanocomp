@@ -3,6 +3,7 @@ import nanoget
 from os import path
 from argparse import ArgumentParser, FileType
 from nanoplot import utils
+from nanoplot.filteroptions import filter_and_transform_data
 import nanoplotter
 import numpy as np
 import logging
@@ -36,6 +37,7 @@ def main():
             names=args.names,
             barcoded=args.barcoded,
             combine="track")
+        datadf, settings = filter_and_transform_data(datadf, vars(args))
         if args.raw:
             datadf.to_csv("NanoComp-data.tsv.gz", sep="\t", index=False, compression="gzip")
         if args.split_runs:
@@ -99,6 +101,10 @@ def get_args():
                              Options are 1D, 2D, 1D2",
                            default="1D",
                            choices=['1D', '2D', '1D2'])
+    filtering.add_argument("--maxlength",
+                           help="Drop reads longer than length specified.",
+                           type=int,
+                           metavar='N')
     filtering.add_argument("--barcoded",
                            help="Barcoded experiment in summary format, splitting per barcode.",
                            action="store_true")
