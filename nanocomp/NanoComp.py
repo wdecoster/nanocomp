@@ -140,6 +140,10 @@ def get_args():
                         help="Add a title to all plots, requires quoting if using spaces",
                         type=str,
                         default=None)
+    visual.add_argument("--dpi",
+                        help="Set the dpi for saving images",
+                        type=int,
+                        default=100)
     target = parser.add_argument_group(
         title="Input data sources, one of these is required.")
     mtarget = target.add_mutually_exclusive_group(
@@ -196,6 +200,7 @@ def change_identifiers(datadf, split_dict):
 
 
 def make_plots(df, settings):
+    nanoplotter.plot_settings(dict(), dpi=settings["dpi"])
     df["log length"] = np.log10(df["lengths"])
     if settings["plot"] == "violin":
         violin = True
