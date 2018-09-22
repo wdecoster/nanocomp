@@ -5,6 +5,7 @@ from argparse import ArgumentParser, FileType
 from nanoplot import utils
 from nanoplot.filteroptions import filter_and_transform_data
 import nanoplotter
+import nanoplotter.compplots as compplots
 import numpy as np
 import logging
 from .version import __version__
@@ -208,7 +209,7 @@ def make_plots(df, settings):
         violin = False
     plots = []
     plots.extend(
-        nanoplotter.output_barplot(
+        compplots.output_barplot(
             df=df,
             figformat=settings["format"],
             path=settings["path"],
@@ -216,7 +217,7 @@ def make_plots(df, settings):
             palette=settings["colors"])
     )
     plots.extend(
-        nanoplotter.violin_or_box_plot(
+        compplots.violin_or_box_plot(
             df=df,
             y="lengths",
             figformat=settings["format"],
@@ -227,7 +228,7 @@ def make_plots(df, settings):
             palette=settings["colors"])
     )
     plots.extend(
-        nanoplotter.violin_or_box_plot(
+        compplots.violin_or_box_plot(
             df=df,
             y="log length",
             figformat=settings["format"],
@@ -240,7 +241,7 @@ def make_plots(df, settings):
     )
     if "quals" in df:
         plots.extend(
-            nanoplotter.violin_or_box_plot(
+            compplots.violin_or_box_plot(
                 df=df,
                 y="quals",
                 figformat=settings["format"],
@@ -252,7 +253,7 @@ def make_plots(df, settings):
         )
     if "percentIdentity" in df:
         plots.extend(
-            nanoplotter.violin_or_box_plot(
+            compplots.violin_or_box_plot(
                 df=df[df["percentIdentity"] > np.percentile(df["percentIdentity"], 1)],
                 y="percentIdentity",
                 figformat=settings["format"],
@@ -264,14 +265,14 @@ def make_plots(df, settings):
         )
     if "start_time" in df:
         plots.extend(
-            nanoplotter.compare_cumulative_yields(
+            compplots.compare_cumulative_yields(
                 df=df,
                 path=settings["path"],
                 title=settings["title"],
                 palette=settings["colors"])
         )
     plots.extend(
-        nanoplotter.overlay_histogram(
+        compplots.overlay_histogram(
             df=df,
             path=settings["path"],
             palette=settings["colors"]
