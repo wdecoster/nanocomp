@@ -218,7 +218,7 @@ def make_plots(df, settings):
     )
     plots.extend(
         compplots.violin_or_box_plot(
-            df=df,
+            df=df[df["length_filter"]],
             y="lengths",
             figformat=settings["format"],
             path=settings["path"],
@@ -229,7 +229,7 @@ def make_plots(df, settings):
     )
     plots.extend(
         compplots.violin_or_box_plot(
-            df=df,
+            df=df[df["length_filter"]],
             y="log length",
             figformat=settings["format"],
             path=settings["path"],
