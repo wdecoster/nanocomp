@@ -1,7 +1,9 @@
 # NanoComp
 
 
-Compare multiple runs of long read sequencing data and alignments
+Compare multiple runs of long read sequencing data and alignments. Creates violin plots or box plots of length, quality and percent identity and creates dynamic, overlaying read length histograms and a cumulative yield plot.
+
+As of version 1.1.0 NanoComp will also create a static png image for dynamic html plots, as the latter can get quite big and slow to load for big datasets. This however requires that you install [orca](https://github.com/plotly/orca). Without orca the script still works, but no static copies of dynamic plots are created.
 
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/wouter_decoster.svg?style=social&label=Follow%20%40wouter_decoster)](https://twitter.com/wouter_decoster)
 [![Build Status](https://travis-ci.org/wdecoster/nanocomp.svg?branch=master)](https://travis-ci.org/wdecoster/nanocomp)
