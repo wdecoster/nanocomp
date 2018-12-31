@@ -35,7 +35,8 @@ setup(
                       'nanoplotter>=1.2.0',
                       'nanoget>=1.4.0',
                       'nanomath>=0.15.3',
-                      'NanoPlot>=1.19.0'
+                      'NanoPlot>=1.19.0',
+                      'psutil'
                       ],
     package_data={'NanoComp': []},
     package_dir={'NanoComp': 'NanoComp'},
