@@ -255,6 +255,15 @@ def make_plots(df, settings):
                 title=settings["title"],
                 palette=settings["colors"])
         )
+    if "duration" in df:
+        plots.extend(
+            compplots.compare_sequencing_speed(
+                df=df,
+                figformat=settings["format"],
+                path=settings["path"],
+                title=settings["title"],
+                palette=settings["colors"])
+        )
     if "percentIdentity" in df:
         plots.extend(
             compplots.violin_or_box_plot(
