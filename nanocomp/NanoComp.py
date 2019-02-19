@@ -106,6 +106,10 @@ def get_args():
                            help="Drop reads longer than length specified.",
                            type=int,
                            metavar='N')
+    filtering.add_argument("--minlength",
+                           help="Drop reads shorter than length specified.",
+                           type=int,
+                           metavar='N')
     filtering.add_argument("--barcoded",
                            help="Barcoded experiment in summary format, splitting per barcode.",
                            action="store_true")
