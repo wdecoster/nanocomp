@@ -321,25 +321,7 @@ def make_report(plots, path):
         </head>"""
     html_content = ["\n<body>\n<h1>NanoComp report</h1>"]
     html_content.append("<h2>Summary statistics</h2>")
-    with open(path + "NanoStats.txt") as stats:
-        html_content.append('\n<table>')
-        for line in stats:
-            html_content.append('')
-            linesplit = line.strip().split('\t')
-            if line.startswith('Data'):
-                html_content.append('\n<tr></tr>\n<tr>\n\t<td colspan="2">' +
-                                    line.strip() + '</td>\n</tr>')
-                break
-            if len(linesplit) > 1:
-                data = ''.join(["<td>" + e + "</td>" for e in linesplit])
-                html_content.append("<tr>\n\t" + data + "\n</tr>")
-            else:
-                html_content.append('\n<tr></tr>\n<tr>\n\t<td colspan="2"><b>' +
-                                    line.strip() + '</b></td>\n</tr>')
-        for line in stats:
-            html_content.append('\n<tr>\n\t<td colspan="2">' +
-                                line.strip() + '</td>\n</tr>')
-        html_content.append('</table>')
+    html_content.append(utils.stats2html(path + "NanoStats.txt"))
     html_content.append('\n<br>\n<br>\n<br>\n<br>')
     html_content.append("<h2>Plots</h2>")
     for plot in plots:
