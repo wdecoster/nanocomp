@@ -50,7 +50,7 @@ def main():
             datadfs=[datadf[datadf["dataset"] == i] for i in identifiers],
             outputfile=settings["path"] + "NanoStats.txt",
             names=identifiers)
-        if args.plot is not 'false':
+        if args.plot != 'false':
             plots = make_plots(datadf, settings)
             make_report(plots, path.join(args.outdir, args.prefix))
         logging.info("Succesfully processed all input.")
