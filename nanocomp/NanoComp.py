@@ -1,4 +1,5 @@
 import sys
+import pickle
 import nanoget
 from os import path
 from argparse import ArgumentParser, FileType
@@ -41,6 +42,10 @@ def main():
         datadf, settings = filter_and_transform_data(datadf, vars(args))
         if args.raw:
             datadf.to_csv("NanoComp-data.tsv.gz", sep="\t", index=False, compression="gzip")
+        if args.store:
+            pickle.dump(
+                obj=datadf,
+                file=open(settings["path"] + "NanoComp-data.pickle", 'wb'))
         if args.split_runs:
             change_identifiers(datadf, split_dict)
         if args.barcoded:
@@ -94,6 +99,9 @@ def get_args():
                          action="store_true")
     general.add_argument("--raw",
                          help="Store the extracted data in tab separated file.",
+                         action="store_true")
+    general.add_argument("--store",
+                         help="Store the extracted data in a pickle file for future plotting.",
                          action="store_true")
     filtering = parser.add_argument_group(
         title='Options for filtering or transforming input prior to plotting')
