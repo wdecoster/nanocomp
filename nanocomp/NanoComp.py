@@ -225,6 +225,14 @@ def make_plots(df, settings):
             palette=settings["colors"])
     )
     plots.extend(
+        compplots.n50_barplot(
+            df=df,
+            figformat=settings["format"],
+            path=settings["path"],
+            title=settings["title"],
+            palette=settings["colors"])
+    )
+    plots.extend(
         compplots.violin_or_box_plot(
             df=df[df["length_filter"]],
             y="lengths",
