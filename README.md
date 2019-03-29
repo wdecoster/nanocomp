@@ -46,8 +46,8 @@ Options for customizing the plots created:
                         Specify the output format of the plots.
   -n, --names names     Specify the names to be used for the datasets
   -c, --colors colors   Specify the colors to be used for the datasets
-  --plot {violin,box, false}
-                        Which plot type to use: 'boxplot', 'violinplot' (default) or 'false' (no plots)
+  --plot {violin,box,ridge,false}
+                        Which plot type to use: 'box', 'violin' (default), 'ridge' (joyplot) or 'false' (no plots)
   --title TITLE         Add a title to all plots, requires quoting if using spaces
 
 Input data sources, one of these is required.:

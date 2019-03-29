@@ -50,7 +50,7 @@ def main():
             datadfs=[datadf[datadf["dataset"] == i] for i in identifiers],
             outputfile=settings["path"] + "NanoStats.txt",
             names=identifiers)
-        if args.plot in ['violin', 'box']:
+        if args.plot is not 'false':
             plots = make_plots(datadf, settings)
             make_report(plots, path.join(args.outdir, args.prefix))
         logging.info("Succesfully processed all input.")
@@ -137,9 +137,9 @@ def get_args():
                         metavar="colors")
     visual.add_argument("--plot",
                         help="Which plot type to use: "
-                             "'boxplot', 'violinplot' (default) or 'false' (no plots)",
+                             "'box', 'violin' (default), 'ridge' (joyplot) or 'false' (no plots)",
                         type=str,
-                        choices=['violin', 'box', 'false'],
+                        choices=['violin', 'box', 'ridge', 'false'],
                         default="violin")
     visual.add_argument("--title",
                         help="Add a title to all plots, requires quoting if using spaces",
@@ -207,10 +207,6 @@ def change_identifiers(datadf, split_dict):
 def make_plots(df, settings):
     nanoplotter.plot_settings(dict(), dpi=settings["dpi"])
     df["log length"] = np.log10(df["lengths"])
-    if settings["plot"] == "violin":
-        violin = True
-    else:
-        violin = False
     plots = []
     plots.extend(
         compplots.output_barplot(
@@ -227,7 +223,7 @@ def make_plots(df, settings):
             figformat=settings["format"],
             path=settings["path"],
             y_name="Read length",
-            violin=violin,
+            plot=settings["plot"],
             title=settings["title"],
             palette=settings["colors"])
     )
@@ -238,7 +234,7 @@ def make_plots(df, settings):
             figformat=settings["format"],
             path=settings["path"],
             y_name="Log-transformed read length",
-            violin=violin,
+            plot=settings["plot"],
             log=True,
             title=settings["title"],
             palette=settings["colors"])
@@ -251,7 +247,7 @@ def make_plots(df, settings):
                 figformat=settings["format"],
                 path=settings["path"],
                 y_name="Average base call quality score",
-                violin=violin,
+                plot=settings["plot"],
                 title=settings["title"],
                 palette=settings["colors"])
         )
@@ -272,7 +268,7 @@ def make_plots(df, settings):
                 figformat=settings["format"],
                 path=settings["path"],
                 y_name="Percent reference identity",
-                violin=violin,
+                plot=settings["plot"],
                 title=settings["title"],
                 palette=settings["colors"])
         )
