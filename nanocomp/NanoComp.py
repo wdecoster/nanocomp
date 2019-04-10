@@ -50,7 +50,7 @@ def main():
             datadfs=[datadf[datadf["dataset"] == i] for i in identifiers],
             outputfile=settings["path"] + "NanoStats.txt",
             names=identifiers)
-        if args.plot in ['violin', 'box']:
+        if args.plot != 'false':
             plots = make_plots(datadf, settings)
             make_report(plots, path.join(args.outdir, args.prefix))
         logging.info("Succesfully processed all input.")
@@ -106,6 +106,10 @@ def get_args():
                            help="Drop reads longer than length specified.",
                            type=int,
                            metavar='N')
+    filtering.add_argument("--minlength",
+                           help="Drop reads shorter than length specified.",
+                           type=int,
+                           metavar='N')
     filtering.add_argument("--barcoded",
                            help="Barcoded experiment in summary format, splitting per barcode.",
                            action="store_true")
@@ -133,9 +137,9 @@ def get_args():
                         metavar="colors")
     visual.add_argument("--plot",
                         help="Which plot type to use: "
-                             "'boxplot', 'violinplot' (default) or 'false' (no plots)",
+                             "'box', 'violin' (default), 'ridge' (joyplot) or 'false' (no plots)",
                         type=str,
-                        choices=['violin', 'box', 'false'],
+                        choices=['violin', 'box', 'ridge', 'false'],
                         default="violin")
     visual.add_argument("--title",
                         help="Add a title to all plots, requires quoting if using spaces",
@@ -203,10 +207,6 @@ def change_identifiers(datadf, split_dict):
 def make_plots(df, settings):
     nanoplotter.plot_settings(dict(), dpi=settings["dpi"])
     df["log length"] = np.log10(df["lengths"])
-    if settings["plot"] == "violin":
-        violin = True
-    else:
-        violin = False
     plots = []
     plots.extend(
         compplots.output_barplot(
@@ -223,7 +223,7 @@ def make_plots(df, settings):
             figformat=settings["format"],
             path=settings["path"],
             y_name="Read length",
-            violin=violin,
+            plot=settings["plot"],
             title=settings["title"],
             palette=settings["colors"])
     )
@@ -234,7 +234,7 @@ def make_plots(df, settings):
             figformat=settings["format"],
             path=settings["path"],
             y_name="Log-transformed read length",
-            violin=violin,
+            plot=settings["plot"],
             log=True,
             title=settings["title"],
             palette=settings["colors"])
@@ -247,7 +247,16 @@ def make_plots(df, settings):
                 figformat=settings["format"],
                 path=settings["path"],
                 y_name="Average base call quality score",
-                violin=violin,
+                plot=settings["plot"],
+                title=settings["title"],
+                palette=settings["colors"])
+        )
+    if "duration" in df:
+        plots.extend(
+            compplots.compare_sequencing_speed(
+                df=df,
+                figformat=settings["format"],
+                path=settings["path"],
                 title=settings["title"],
                 palette=settings["colors"])
         )
@@ -259,7 +268,7 @@ def make_plots(df, settings):
                 figformat=settings["format"],
                 path=settings["path"],
                 y_name="Percent reference identity",
-                violin=violin,
+                plot=settings["plot"],
                 title=settings["title"],
                 palette=settings["colors"])
         )
@@ -308,25 +317,7 @@ def make_report(plots, path):
         </head>"""
     html_content = ["\n<body>\n<h1>NanoComp report</h1>"]
     html_content.append("<h2>Summary statistics</h2>")
-    with open(path + "NanoStats.txt") as stats:
-        html_content.append('\n<table>')
-        for line in stats:
-            html_content.append('')
-            linesplit = line.strip().split('\t')
-            if line.startswith('Data'):
-                html_content.append('\n<tr></tr>\n<tr>\n\t<td colspan="2">' +
-                                    line.strip() + '</td>\n</tr>')
-                break
-            if len(linesplit) > 1:
-                data = ''.join(["<td>" + e + "</td>" for e in linesplit])
-                html_content.append("<tr>\n\t" + data + "\n</tr>")
-            else:
-                html_content.append('\n<tr></tr>\n<tr>\n\t<td colspan="2"><b>' +
-                                    line.strip() + '</b></td>\n</tr>')
-        for line in stats:
-            html_content.append('\n<tr>\n\t<td colspan="2">' +
-                                line.strip() + '</td>\n</tr>')
-        html_content.append('</table>')
+    html_content.append(utils.stats2html(path + "NanoStats.txt"))
     html_content.append('\n<br>\n<br>\n<br>\n<br>')
     html_content.append("<h2>Plots</h2>")
     for plot in plots:
