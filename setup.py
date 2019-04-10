@@ -34,7 +34,7 @@ setup(
                       'numpy',
                       'nanoplotter>=1.6.0',
                       'nanoget>=1.4.0',
-                      'nanomath>=0.23.0',
+                      'nanomath>=0.23.1',
                       'NanoPlot>=1.21.0',
                       'psutil'
                       ],
