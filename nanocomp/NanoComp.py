@@ -6,7 +6,7 @@ from argparse import ArgumentParser, FileType
 from nanoplot import utils
 from nanoplot.filteroptions import filter_and_transform_data
 import nanoplotter
-import nanoplotter.compplots as compplots
+import nanocomp.compplots as compplots
 import numpy as np
 import logging
 from .version import __version__
