@@ -41,7 +41,10 @@ def main():
             combine="track")
         datadf, settings = filter_and_transform_data(datadf, vars(args))
         if args.raw:
-            datadf.to_csv("NanoComp-data.tsv.gz", sep="\t", index=False, compression="gzip")
+            datadf.to_csv(settings["path"] + "NanoComp-data.tsv.gz",
+                          sep="\t",
+                          index=False,
+                          compression="gzip")
         if args.store:
             pickle.dump(
                 obj=datadf,
