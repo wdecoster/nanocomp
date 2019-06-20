@@ -1,8 +1,9 @@
 import logging
 import sys
+import textwrap as _textwrap
 import seaborn as sns
 from .version import __version__
-from argparse import ArgumentParser, FileType
+from argparse import ArgumentParser, FileType, HelpFormatter
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
@@ -49,6 +50,26 @@ def change_identifiers(datadf, split_dict):
         datadf.loc[datadf["runIDs"] == rid, "dataset"] = name
 
 
+class CustomHelpFormatter(HelpFormatter):
+    def _format_action_invocation(self, action):
+        if not action.option_strings or action.nargs == 0:
+            return super()._format_action_invocation(action)
+        default = self._get_default_metavar_for_optional(action)
+        args_string = self._format_args(action, default)
+        return ', '.join(action.option_strings) + ' ' + args_string
+
+    def _fill_text(self, text, width, indent):
+        return ''.join(indent + line for line in text.splitlines(keepends=True))
+
+    def _split_lines(self, text, width):
+        text = self._whitespace_matcher.sub(' ', text).strip()
+        return _textwrap.wrap(text, 80)
+
+
+def custom_formatter(prog):
+    return CustomHelpFormatter(prog)
+
+
 def get_args():
     epilog = """EXAMPLES:
     NanoComp --bam alignment1.bam alignment2.bam --outdir compare-runs
@@ -57,7 +78,7 @@ def get_args():
     parser = ArgumentParser(
         description="Compares long read sequencing datasets.",
         epilog=epilog,
-        formatter_class=utils.custom_formatter,
+        formatter_class=custom_formatter,
         add_help=False)
     general = parser.add_argument_group(
         title='General options')
