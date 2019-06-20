@@ -1,12 +1,57 @@
 import logging
 import sys
+import os
+import pandas as pd
+import numpy as np
+from datetime import datetime as dt
+from time import time
 import textwrap as _textwrap
-import seaborn as sns
 from .version import __version__
 from argparse import ArgumentParser, FileType, HelpFormatter
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+def make_output_dir(path):
+    try:
+        if not os.path.exists(path):
+            os.makedirs(path)
+    except IOError:
+        sys.exit("ERROR: No writing permission to the output directory.")
+
+
+def chunks(values, chunks):
+    if values:
+        chunksize = int(len(values) / chunks)
+        return([' '.join(values[i:i + chunksize]) for i in range(0, len(values), chunksize)])
+    else:
+        return [" "] * chunks
+
+
+def stats2html(statsf):
+    df = pd.read_csv(statsf, sep=':', header=None, names=['feature', 'value'])
+    values = df["value"].str.strip().str.replace('\t', ' ').str.split().replace(np.nan, '')
+    num = len(values[0]) or 1
+    v = [chunks(i, num) for i in values]
+    return pd.DataFrame(v, index=df["feature"]).to_html(header=False)
+
+
+def init_logs(args, tool="NanoComp"):
+    """Initiate log file and log arguments."""
+    start_time = dt.fromtimestamp(time()).strftime('%Y%m%d_%H%M')
+    logname = os.path.join(args.outdir, args.prefix + tool + "_" + start_time + ".log")
+    handlers = [logging.FileHandler(logname)]
+    if args.verbose:
+        handlers.append(logging.StreamHandler())
+    logging.basicConfig(
+        format='%(asctime)s %(message)s',
+        handlers=handlers,
+        level=logging.INFO)
+    logging.info('{} {} started with arguments {}'.format(tool, __version__, args))
+    logging.info('Python version is: {}'.format(sys.version.replace('\n', ' ')))
+    return logname
 
 
 def check_valid_format(figformat):
@@ -195,4 +240,6 @@ def get_args():
     if args.colors:
         if not len(args.colors) == [len(i) for i in [args.fastq, args.summary, args.bam] if i][0]:
             sys.exit("ERROR: Number of colors (-c) should be same as number of files specified!")
-    return args
+    settings = vars(args)
+    settings["path"] = os.path.join(args.outdir, args.prefix)
+    return settings, args

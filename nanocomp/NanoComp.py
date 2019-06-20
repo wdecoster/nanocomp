@@ -1,9 +1,7 @@
 import pickle
 import nanoget
-from os import path
-from nanoplot import utils
 from nanoplot.filteroptions import filter_and_transform_data
-import nanocomp.utils as computils
+import nanocomp.utils as utils
 import nanocomp.compplots as compplots
 import numpy as np
 import logging
@@ -17,17 +15,15 @@ def main():
     -gets inputdata
     -calls plotting function
     '''
-    args = computils.get_args()
+    settings, args = utils.get_args()
     try:
         utils.make_output_dir(args.outdir)
-        utils.init_logs(args, tool="NanoComp")
-        args.format = computils.check_valid_format(args.format)
-        settings = vars(args)
-        settings["path"] = path.join(args.outdir, args.prefix)
+        utils.init_logs(args)
+        args.format = utils.check_valid_format(args.format)
         sources = [args.fastq, args.bam, args.summary, args.fasta]
         sourcename = ["fastq", "bam", "summary", "fasta"]
         if args.split_runs:
-            split_dict = computils.validate_split_runs_file(args.split_runs)
+            split_dict = utils.validate_split_runs_file(args.split_runs)
         datadf = nanoget.get_input(
             source=[n for n, s in zip(sourcename, sources) if s][0],
             files=[f for f in sources if f][0],
@@ -47,7 +43,7 @@ def main():
                 obj=datadf,
                 file=open(settings["path"] + "NanoComp-data.pickle", 'wb'))
         if args.split_runs:
-            computils.change_identifiers(datadf, split_dict)
+            utils.change_identifiers(datadf, split_dict)
         if args.barcoded:
             datadf["dataset"] = datadf["barcode"]
         identifiers = list(datadf["dataset"].unique())
@@ -57,7 +53,7 @@ def main():
             names=identifiers)
         if args.plot != 'false':
             plots = make_plots(datadf, settings)
-            make_report(plots, path.join(args.outdir, args.prefix))
+            make_report(plots, settings["path"])
         logging.info("Succesfully processed all input.")
     except Exception as e:
         logging.error(e, exc_info=True)
@@ -65,7 +61,7 @@ def main():
 
 
 def make_plots(df, settings):
-    computils.plot_settings(dict(), dpi=settings["dpi"])
+    utils.plot_settings(dict(), dpi=settings["dpi"])
     df["log length"] = np.log10(df["lengths"])
     plots = []
     plots.extend(
