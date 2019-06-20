@@ -5,7 +5,7 @@ from .version import __version__
 from argparse import ArgumentParser, FileType
 import matplotlib as mpl
 mpl.use('Agg')
-import matplotlib.pytplot as plt
+import matplotlib.pyplot as plt
 
 
 def check_valid_format(figformat):
