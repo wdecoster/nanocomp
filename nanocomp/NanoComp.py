@@ -144,6 +144,15 @@ def make_plots(df, settings):
                 title=settings["title"],
                 palette=settings["colors"])
         )
+    if "channelIDs" in df:
+        plots.append(
+            compplots.active_pores_over_time(
+                df=df,
+                path=settings["path"],
+                palette=settings["colors"],
+                title=settings["title"]
+            )
+        )
     plots.extend(
         compplots.overlay_histogram(
             df=df,

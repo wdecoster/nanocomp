@@ -293,3 +293,42 @@ def plot_log_histogram(df, palette, title, histnorm=""):
                              xaxis=dict(tickvals=np.log10(xtickvals),
                                         ticktext=xtickvals))})
     return html, fig
+
+
+def active_pores_over_time(df, path, palette=None, title=None):
+    if palette is None:
+        palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
+
+    logging.info("Nanoplotter: Creating active pores plot using {} reads.".format(len(dfs)))
+    active_pores = Plot(path=path + "NanoComp_ActivePoresOverTime.html",
+                        title="Active pores over time")
+    data = []
+    for sample, color in zip(df["dataset"].unique(), palette):
+        pores = dfs.loc[dfs["dataset"] == sample, "channelIDs"].resample('10T').nunique()
+        data.append(go.Scatter(x=pores.index.total_seconds() / 3600,
+                               y=pores,
+                               opacity=0.75,
+                               name=sample,
+                               marker=dict(color=color))
+                    )
+
+    active_pores.html = plotly.offline.plot({
+        "data": data,
+        "layout": go.Layout(barmode='overlay',
+                            title=title or active_pores.title,
+                            xaxis=dict(title="Time (hours)"),
+                            yaxis=dict(title="Active pores (per 10 minutes)"),
+                            )},
+        output_type="div",
+        show_link=False)
+
+    active_pores.fig = go.Figure({
+        "data": data,
+        "layout": go.Layout(barmode='overlay',
+                            title=title or active_pores.title,
+                            xaxis=dict(title="Time (hours)"),
+                            yaxis=dict(title="Active pores (per 10 minutes)"),
+                            )})
+    active_pores.save()
+    return active_pores
