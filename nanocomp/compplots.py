@@ -22,7 +22,7 @@ def violin_or_box_plot(df, y, figformat, path, y_name,
                 title="Comparing {}".format(y_name.lower()))
 
     if plot == 'violin':
-        logging.info("Nanoplotter: Creating violin plot for {}.".format(y))
+        logging.info("NanoComp: Creating violin plot for {}.".format(y))
         process_violin_and_box(ax=sns.violinplot(x="dataset",
                                                  y=y,
                                                  data=df,
@@ -37,7 +37,7 @@ def violin_or_box_plot(df, y, figformat, path, y_name,
                                figformat=figformat,
                                ymax=np.amax(df[y]))
     elif plot == 'box':
-        logging.info("Nanoplotter: Creating box plot for {}.".format(y))
+        logging.info("NanoComp: Creating box plot for {}.".format(y))
         process_violin_and_box(ax=sns.boxplot(x="dataset",
                                               y=y,
                                               data=df,
@@ -49,7 +49,7 @@ def violin_or_box_plot(df, y, figformat, path, y_name,
                                figformat=figformat,
                                ymax=np.amax(df[y]))
     elif plot == 'ridge':
-        logging.info("Nanoplotter: Creating ridges plot for {}.".format(y))
+        logging.info("NanoComp: Creating ridges plot for {}.".format(y))
         comp.fig, axes = joypy.joyplot(df,
                                        by="dataset",
                                        column=y,
@@ -81,7 +81,7 @@ def process_violin_and_box(ax, log, plot_obj, title, y_name, figformat, ymax):
 
 def output_barplot(df, figformat, path, title=None, palette=None):
     """Create barplots based on number of reads and total sum of nucleotides sequenced."""
-    logging.info("Nanoplotter: Creating barplots for number of reads and total throughput.")
+    logging.info("NanoComp: Creating barplots for number of reads and total throughput.")
     read_count = Plot(path=path + "NanoComp_number_of_reads." + figformat,
                       title="Comparing number of reads")
     ax = sns.countplot(x="dataset",
@@ -140,7 +140,7 @@ def n50_barplot(df, figformat, path, title=None, palette=None):
 
 
 def compare_sequencing_speed(df, figformat, path, title=None, palette=None):
-    logging.info("Nanoplotter: creating comparison of sequencing speed over time.")
+    logging.info("NanoComp: creating comparison of sequencing speed over time.")
     seq_speed = Plot(path=path + "NanoComp_sequencing_speed_over_time." + figformat,
                      title="Sequencing speed over time")
     dfs = check_valid_time_and_sort(df, "start_time")
@@ -166,7 +166,7 @@ def compare_cumulative_yields(df, path, palette=None, title=None):
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
-    logging.info("Nanoplotter: Creating cumulative yield plots using {} reads.".format(len(dfs)))
+    logging.info("NanoComp: Creating cumulative yield plots using {} reads.".format(len(dfs)))
     cum_yield_gb = Plot(path=path + "NanoComp_CumulativeYieldPlot_Gigabases.html",
                         title="Cumulative yield")
     data = []
@@ -300,7 +300,7 @@ def active_pores_over_time(df, path, palette=None, title=None):
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
-    logging.info("Nanoplotter: Creating active pores plot using {} reads.".format(len(dfs)))
+    logging.info("NanoComp: Creating active pores plot using {} reads.".format(len(dfs)))
     active_pores = Plot(path=path + "NanoComp_ActivePoresOverTime.html",
                         title="Active pores over time")
     data = []
