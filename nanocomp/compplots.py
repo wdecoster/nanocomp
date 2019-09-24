@@ -229,7 +229,7 @@ def overlay_histogram(df, path, palette=None):
     hist_norm = Plot(path=path + "NanoComp_OverlayHistogram_Normalized.html",
                      title="Normalized histogram of read lengths")
     hist_norm.html, hist_norm.fig = plot_overlay_histogram(
-        df, palette, title=hist_norm.title, histnorm="probability")
+        df, palette, title=hist_norm.title, histnorm="probability density")
     hist_norm.save()
 
     log_hist = Plot(path=path + "NanoComp_OverlayLogHistogram.html",
@@ -240,7 +240,7 @@ def overlay_histogram(df, path, palette=None):
     log_hist_norm = Plot(path=path + "NanoComp_OverlayLogHistogram_Normalized.html",
                          title="Normalized histogram of log transformed read lengths")
     log_hist_norm.html, log_hist_norm.fig = plot_log_histogram(
-        df, palette, title=log_hist_norm.title, histnorm="probability")
+        df, palette, title=log_hist_norm.title, histnorm="probability density")
     log_hist_norm.save()
 
     return [hist, hist_norm, log_hist, log_hist_norm]
