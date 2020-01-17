@@ -20,13 +20,19 @@ def main():
         utils.make_output_dir(args.outdir)
         utils.init_logs(args)
         args.format = utils.check_valid_format(args.format)
-        sources = [args.fastq, args.bam, args.summary, args.fasta]
-        sourcename = ["fastq", "bam", "summary", "fasta"]
+        sources = {
+            "fastq": args.fastq,
+            "bam": args.bam,
+            "cram": args.cram,
+            "summary": args.summary,
+            "fasta": args.fasta,
+            "ubam": args.ubam,
+        }
         if args.split_runs:
             split_dict = utils.validate_split_runs_file(args.split_runs)
         datadf = nanoget.get_input(
-            source=[n for n, s in zip(sourcename, sources) if s][0],
-            files=[f for f in sources if f][0],
+            source=[n for n, s in sources.items() if s][0],
+            files=[f for f in sources.values() if f][0],
             threads=args.threads,
             readtype=args.readtype,
             names=args.names,

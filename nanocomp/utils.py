@@ -229,6 +229,14 @@ def get_args():
                          help="Data is in sorted bam files.",
                          nargs='+',
                          metavar="files")
+    mtarget.add_argument("--ubam",
+                         help="Data is in one or more unmapped bam file(s).",
+                         nargs='+',
+                         metavar="file")
+    mtarget.add_argument("--cram",
+                         help="Data is in one or more sorted cram file(s).",
+                         nargs='+',
+                         metavar="file")
     args = parser.parse_args()
     if args.names:
         if not len(args.names) == [len(i) for i in
