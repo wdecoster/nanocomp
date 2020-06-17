@@ -1,3 +1,5 @@
+import seaborn as sns
+import matplotlib.pyplot as plt
 import logging
 import sys
 import os
@@ -10,8 +12,6 @@ from .version import __version__
 from argparse import ArgumentParser, FileType, HelpFormatter
 import matplotlib as mpl
 mpl.use('Agg')
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 
 def make_output_dir(path):
@@ -235,6 +235,10 @@ def get_args():
                          metavar="file")
     mtarget.add_argument("--cram",
                          help="Data is in one or more sorted cram file(s).",
+                         nargs='+',
+                         metavar="file")
+    mtarget.add_argument("--pickle",
+                         help="Data is in one or more pickle file(s) from using NanoComp/NanoPlot.",
                          nargs='+',
                          metavar="file")
     args = parser.parse_args()

@@ -30,14 +30,20 @@ def main():
         }
         if args.split_runs:
             split_dict = utils.validate_split_runs_file(args.split_runs)
-        datadf = nanoget.get_input(
-            source=[n for n, s in sources.items() if s][0],
-            files=[f for f in sources.values() if f][0],
-            threads=args.threads,
-            readtype=args.readtype,
-            names=args.names,
-            barcoded=args.barcoded,
-            combine="track")
+        if args.pickle:
+            from nanoget.nanoget import combine_df
+            datadf = combine_df(dfs=[pickle.load(open(p, 'rb')) for p in args.pickle],
+                                names=args.names,
+                                method="track")
+        else:
+            datadf = nanoget.get_input(
+                source=[n for n, s in sources.items() if s][0],
+                files=[f for f in sources.values() if f][0],
+                threads=args.threads,
+                readtype=args.readtype,
+                names=args.names,
+                barcoded=args.barcoded,
+                combine="track")
         datadf, settings = filter_and_transform_data(datadf, vars(args))
         if args.raw:
             datadf.to_csv(settings["path"] + "NanoComp-data.tsv.gz",
