@@ -8,3 +8,4 @@ NanoComp --summary nanotest/sequencing_summary.txt nanotest/sequencing_summary.t
 NanoComp --fastq nanotest/reads.fastq.gz nanotest/reads.fastq.gz --names run1 run2 --plot box
 NanoComp --fasta nanotest/reads.fa.gz nanotest/reads.fa.gz nanotest/reads.fa.gz nanotest/reads.fa.gz --n run1 run2 run3 run4 --plot violin
 NanoComp --summary nanotest/sequencing_summary.txt nanotest/sequencing_summary.txt -n A B --maxlength 20000
+NanoComp --feather nanotest/summary1.feather nanotest/summary2.feather nanotest/summary3.feather -n A B C
