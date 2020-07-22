@@ -39,7 +39,8 @@ setup(
                       'plotly>=3.4.2',
                       'seaborn>=0.9.0',
                       'matplotlib>=2.1.0',
-                      'joypy'
+                      'joypy',
+                      'pyarrow'
                       ],
     package_data={'NanoComp': []},
     package_dir={'NanoComp': 'NanoComp'},
