@@ -241,7 +241,13 @@ def get_args():
                          help="Data is in one or more pickle file(s) from using NanoComp/NanoPlot.",
                          nargs='+',
                          metavar="file")
+    mtarget.add_argument("--feather",
+                         help="Data is in one or more feather file(s).",
+                         nargs='+',
+                         metavar="file")
     args = parser.parse_args()
+    sources = [args.fastq, args.summary, args.bam, args.fasta,
+               args.ubam, args.cram, args.pickle, args.feather]
     if args.names:
         if not len(args.names) == [len(i) for i in sources if i][0]:
             sys.exit("ERROR: Number of names (-n) should be same as number of files specified!")

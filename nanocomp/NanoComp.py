@@ -35,6 +35,12 @@ def main():
             datadf = combine_dfs(dfs=[pickle.load(open(p, 'rb')) for p in args.pickle],
                                  names=args.names,
                                  method="track")
+        elif args.feather:
+            from nanoget import combine_dfs
+            from pandas import read_feather
+            datadf = combine_dfs([read_feather(p) for p in args.feather],
+                                 names=args.names,
+                                 method="track")
         else:
             datadf = nanoget.get_input(
                 source=[n for n, s in sources.items() if s][0],
