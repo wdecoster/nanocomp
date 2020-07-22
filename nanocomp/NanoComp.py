@@ -31,10 +31,10 @@ def main():
         if args.split_runs:
             split_dict = utils.validate_split_runs_file(args.split_runs)
         if args.pickle:
-            from nanoget.nanoget import combine_df
-            datadf = combine_df(dfs=[pickle.load(open(p, 'rb')) for p in args.pickle],
-                                names=args.names,
-                                method="track")
+            from nanoget import combine_dfs
+            datadf = combine_dfs(dfs=[pickle.load(open(p, 'rb')) for p in args.pickle],
+                                 names=args.names,
+                                 method="track")
         else:
             datadf = nanoget.get_input(
                 source=[n for n, s in sources.items() if s][0],

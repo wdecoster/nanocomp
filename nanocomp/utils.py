@@ -243,14 +243,13 @@ def get_args():
                          metavar="file")
     args = parser.parse_args()
     if args.names:
-        if not len(args.names) == [len(i) for i in
-                                   [args.fastq, args.summary, args.bam, args.fasta, args.ubam, args.cram] if i][0]:
+        if not len(args.names) == [len(i) for i in sources if i][0]:
             sys.exit("ERROR: Number of names (-n) should be same as number of files specified!")
         if len(args.names) != len(set(args.names)):
             sys.stderr.write("\nWarning: duplicate values in -n/--names detected. ")
             sys.stderr.write("Datasets with the same name will be merged.\n\n")
     if args.colors:
-        if not len(args.colors) == [len(i) for i in [args.fastq, args.summary, args.bam, args.ubam, args.cram] if i][0]:
+        if not len(args.colors) == [len(i) for i in sources if i][0]:
             sys.exit("ERROR: Number of colors (-c) should be same as number of files specified!")
     settings = vars(args)
     settings["path"] = os.path.join(args.outdir, args.prefix)
