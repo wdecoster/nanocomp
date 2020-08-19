@@ -39,7 +39,7 @@ def main():
             from nanoget import combine_dfs
             from pandas import read_feather
             datadf = combine_dfs([read_feather(p) for p in args.feather],
-                                 names=args.names,
+                                 names=args.names or args.feather,
                                  method="track")
         else:
             datadf = nanoget.get_input(
