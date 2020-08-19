@@ -65,13 +65,14 @@ def main():
         if args.barcoded:
             datadf["dataset"] = datadf["barcode"]
         identifiers = list(datadf["dataset"].unique())
-        write_stats(
+        stats_df = write_stats(
             datadfs=[datadf[datadf["dataset"] == i] for i in identifiers],
             outputfile=settings["path"] + "NanoStats.txt",
-            names=identifiers)
+            names=identifiers,
+            as_tsv=args.tsv_stats)
         if args.plot != 'false':
             plots = make_plots(datadf, settings)
-            make_report(plots, settings["path"])
+            make_report(plots, settings["path"], stats_df=stats_df)
         logging.info("Succesfully processed all input.")
     except Exception as e:
         logging.error(e, exc_info=True)
@@ -181,7 +182,7 @@ def make_plots(df, settings):
     return plots
 
 
-def make_report(plots, path):
+def make_report(plots, path, stats_df):
     '''
     Creates a fat html report based on the previously created files
     plots is a list of Plot objects defined by a path and title
@@ -208,7 +209,10 @@ def make_report(plots, path):
         </head>"""
     html_content = ["\n<body>\n<h1>NanoComp report</h1>"]
     html_content.append("<h2>Summary statistics</h2>")
-    html_content.append(utils.stats2html(path + "NanoStats.txt"))
+    if stats_df is not None:
+        html_content.append(stats_df.to_html())
+    else:
+        html_content.append(utils.stats2html(path + "NanoStats.txt"))
     html_content.append('\n<br>\n<br>\n<br>\n<br>')
     html_content.append("<h2>Plots</h2>")
     for plot in plots:

@@ -31,6 +31,7 @@ def chunks(values, chunks):
 
 
 def stats2html(statsf):
+    '''for legacy stats output files'''
     df = pd.read_csv(statsf, sep=':', header=None, names=['feature', 'value'])
     values = df["value"].str.strip().str.replace('\t', ' ').str.split().replace(np.nan, '')
     num = len(values[0]) or 1
@@ -154,6 +155,9 @@ def get_args():
     general.add_argument("--store",
                          help="Store the extracted data in a pickle file for future plotting.",
                          action="store_true")
+    general.add_argument("--tsv_stats",
+                         help="Output the stats file as a properly formatted TSV.",
+                         action='store_true')
     filtering = parser.add_argument_group(
         title='Options for filtering or transforming input prior to plotting')
     filtering.add_argument("--readtype",
