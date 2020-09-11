@@ -223,13 +223,13 @@ def overlay_histogram(df, path, palette=None):
 
     hist = Plot(path=path + "NanoComp_OverlayHistogram.html",
                 title="Histogram of read lengths")
-    hist.html, hist.fig = plot_overlay_histogram(df, palette, title=hist.title)
+    hist.html, hist.fig = plot_overlay_histogram(df, palette, column='lengths', title=hist.title)
     hist.save()
 
     hist_norm = Plot(path=path + "NanoComp_OverlayHistogram_Normalized.html",
                      title="Normalized histogram of read lengths")
     hist_norm.html, hist_norm.fig = plot_overlay_histogram(
-        df, palette, title=hist_norm.title, histnorm="probability density")
+        df, palette, column='lengths', title=hist_norm.title, histnorm="probability density")
     hist_norm.save()
 
     log_hist = Plot(path=path + "NanoComp_OverlayLogHistogram.html",
@@ -246,13 +246,24 @@ def overlay_histogram(df, path, palette=None):
     return [hist, hist_norm, log_hist, log_hist_norm]
 
 
-def plot_overlay_histogram(df, palette, title, histnorm=""):
+def overlay_histogram_identity(df, path, palette=None):
+    if palette is None:
+        palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    hist_pid = Plot(path=path + "NanoComp_OverlayHistogram_Identity.html",
+                    title="Histogram of percent reference identity")
+    hist_pid.html, hist_pid.fig = plot_overlay_histogram(
+        df, palette, "percentIdentity", hist_pid.title, histnorm="probability density")
+    hist_pid.save()
+    return hist_pid
+
+
+def plot_overlay_histogram(df, palette, column, title, histnorm=""):
     data = []
     for d, c in zip(df["dataset"].unique(), palette):
         numreads = len(df.loc[df["dataset"] == d])
         data.append(
             go.Histogram(
-                x=df.loc[df["dataset"] == d, "lengths"].sample(min(numreads, 10000)),
+                x=df.loc[df["dataset"] == d, column].sample(min(numreads, 10000)),
                 opacity=0.4,
                 name=d,
                 histnorm=histnorm,
