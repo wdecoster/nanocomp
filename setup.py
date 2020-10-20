@@ -37,7 +37,7 @@ setup(
                       'NanoPlot>=1.21.0',
                       'psutil',
                       'plotly>=3.4.2',
-                      'seaborn>=0.9.0',
+                      'seaborn==0.10.1',
                       'matplotlib>=2.1.0',
                       'joypy',
                       'pyarrow'
