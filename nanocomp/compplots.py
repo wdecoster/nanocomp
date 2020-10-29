@@ -188,17 +188,6 @@ def compare_cumulative_yields(df, path, palette=None, title=None):
                                 showarrow=False)
                            )
 
-    cum_yield_gb.html = plotly.offline.plot({
-        "data": data,
-        "layout": go.Layout(barmode='overlay',
-                            title=title or cum_yield_gb.title,
-                            xaxis=dict(title="Time (hours)"),
-                            yaxis=dict(title="Yield (gigabase)"),
-                            annotations=annotations
-                            )},
-        output_type="div",
-        show_link=False)
-
     cum_yield_gb.fig = go.Figure({
         "data": data,
         "layout": go.Layout(barmode='overlay',
@@ -207,6 +196,7 @@ def compare_cumulative_yields(df, path, palette=None, title=None):
                             yaxis=dict(title="Yield (gigabase)"),
                             annotations=annotations
                             )})
+    cum_yield_gb.html = cum_yield_gb.fig.to_html(full_html=False, include_plotlyjs='cdn')
     cum_yield_gb.save()
     return [cum_yield_gb]
 
@@ -229,7 +219,7 @@ def overlay_histogram(df, path, palette=None):
     hist_norm = Plot(path=path + "NanoComp_OverlayHistogram_Normalized.html",
                      title="Normalized histogram of read lengths")
     hist_norm.html, hist_norm.fig = plot_overlay_histogram(
-        df, palette, column='lengths', title=hist_norm.title, histnorm="probability density")
+        df, palette, column='lengths', title=hist_norm.title, density=True)
     hist_norm.save()
 
     log_hist = Plot(path=path + "NanoComp_OverlayLogHistogram.html",
@@ -240,7 +230,7 @@ def overlay_histogram(df, path, palette=None):
     log_hist_norm = Plot(path=path + "NanoComp_OverlayLogHistogram_Normalized.html",
                          title="Normalized histogram of log transformed read lengths")
     log_hist_norm.html, log_hist_norm.fig = plot_log_histogram(
-        df, palette, title=log_hist_norm.title, histnorm="probability density")
+        df, palette, title=log_hist_norm.title, density=True)
     log_hist_norm.save()
 
     return [hist, hist_norm, log_hist, log_hist_norm]
@@ -252,69 +242,70 @@ def overlay_histogram_identity(df, path, palette=None):
     hist_pid = Plot(path=path + "NanoComp_OverlayHistogram_Identity.html",
                     title="Histogram of percent reference identity")
     hist_pid.html, hist_pid.fig = plot_overlay_histogram(
-        df, palette, "percentIdentity", hist_pid.title, histnorm="probability density")
+        df, palette, "percentIdentity", hist_pid.title, density=True)
     hist_pid.save()
     return hist_pid
 
 
-def plot_overlay_histogram(df, palette, column, title, histnorm=""):
+def plot_overlay_histogram(df, palette, column, title, density=False):
     data = []
+    bins = max(round(int(np.amax(df.loc[:, column])) / 500), 10)
     for d, c in zip(df["dataset"].unique(), palette):
-        numreads = len(df.loc[df["dataset"] == d])
+        counts, bins = np.histogram(df.loc[df["dataset"] == d, column],
+                                    bins=bins,
+                                    density=density)
         data.append(
-            go.Histogram(
-                x=df.loc[df["dataset"] == d, column].sample(min(numreads, 10000)),
-                opacity=0.4,
-                name=d,
-                histnorm=histnorm,
-                marker=dict(color=c))
+            go.Bar(x=bins[1:],
+                   y=counts,
+                   opacity=0.4,
+                   name=d,
+                   text=bins[1:],
+                   hoverinfo="text",
+                   hovertemplate=None,
+                   marker=dict(color=c))
         )
 
-    html = plotly.offline.plot(
-        {"data": data,
-         "layout": go.Layout(barmode='overlay',
-                             title=title)},
-        output_type="div",
-        show_link=False)
     fig = go.Figure(
         {"data": data,
          "layout": go.Layout(barmode='overlay',
-                             title=title)})
-    return html, fig
+                             title=title,
+                             bargap=0)
+         })
+    return fig.to_html(full_html=False, include_plotlyjs='cdn'), fig
 
 
-def plot_log_histogram(df, palette, title, histnorm=""):
+def plot_log_histogram(df, palette, title, density=False):
     """
     Plot overlaying histograms with log transformation of length
     Return both html and fig for png
     """
     data = []
+    bins = max(round(int(np.amax(df.loc[:, "lengths"])) / 500), 10)
     for d, c in zip(df["dataset"].unique(), palette):
-        numreads = len(df.loc[df["dataset"] == d])
+        counts, bins = np.histogram(np.log10(df.loc[df["dataset"] == d, "lengths"]),
+                                    bins=bins,
+                                    density=density)
         data.append(
-            go.Histogram(
-                x=np.log10(df.loc[df["dataset"] == d, "lengths"].sample(min(numreads, 10000))),
-                opacity=0.4,
-                name=d,
-                histnorm=histnorm,
-                marker=dict(color=c))
+            go.Bar(x=bins[1:],
+                   y=counts,
+                   opacity=0.4,
+                   name=d,
+                   text=[10**i for i in bins[1:]],
+                   hoverinfo="text",
+                   hovertemplate=None,
+                   marker=dict(color=c))
         )
     xtickvals = [10**i for i in range(10) if not 10**i > 10 * np.amax(df["lengths"])]
-    html = plotly.offline.plot(
-        {"data": data,
-         "layout": go.Layout(barmode='overlay',
-                             title=title,
-                             xaxis=dict(tickvals=np.log10(xtickvals),
-                                        ticktext=xtickvals))},
-        output_type="div",
-        show_link=False)
+
     fig = go.Figure(
         {"data": data,
          "layout": go.Layout(barmode='overlay',
                              title=title,
                              xaxis=dict(tickvals=np.log10(xtickvals),
-                                        ticktext=xtickvals))})
-    return html, fig
+                                        ticktext=xtickvals),
+                             bargap=0)
+         })
+    return fig.to_html(full_html=False, include_plotlyjs='cdn'), fig
 
 
 def active_pores_over_time(df, path, palette=None, title=None):
@@ -335,16 +326,6 @@ def active_pores_over_time(df, path, palette=None, title=None):
                                marker=dict(color=color))
                     )
 
-    active_pores.html = plotly.offline.plot({
-        "data": data,
-        "layout": go.Layout(barmode='overlay',
-                            title=title or active_pores.title,
-                            xaxis=dict(title="Time (hours)"),
-                            yaxis=dict(title="Active pores (per 10 minutes)"),
-                            )},
-        output_type="div",
-        show_link=False)
-
     active_pores.fig = go.Figure({
         "data": data,
         "layout": go.Layout(barmode='overlay',
@@ -352,5 +333,6 @@ def active_pores_over_time(df, path, palette=None, title=None):
                             xaxis=dict(title="Time (hours)"),
                             yaxis=dict(title="Active pores (per 10 minutes)"),
                             )})
+    active_pores.html = active_pores.fig.to_html(full_html=False, include_plotlyjs='cdn')
     active_pores.save()
     return active_pores
