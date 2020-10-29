@@ -26,31 +26,53 @@ def get_args():
     return parser.parse_args()
 
 
-def plot_read_length(lengths, names, maxlength=2000):
+def plot_read_length(lengths, names, maxlength=100000):
     sampled_lengths = [np.random.choice(a, size=10000) for a in lengths]
 
     fig = go.Figure()
+    bins = round(maxlength / 500)
     for dataset, name in zip(sampled_lengths, names):
-        fig.add_trace(go.Histogram(x=[l for l in dataset if not l > maxlength],
-                                   opacity=0.4,
-                                   name=name,
-                                   histnorm="probability density"))
-    fig.update_layout(barmode='overlay', title_text='Aligned read length histogram')
+        counts, bins = np.histogram([l for l in dataset if not l > maxlength],
+                                    bins=bins,
+                                    density=True)
+        fig.add_trace(go.Bar(x=bins[1:],
+                             y=counts,
+                             opacity=0.4,
+                             name=name,
+                             text=bins[1:],
+                             hoverinfo="text",
+                             hovertemplate=None))
+    fig.update_layout(barmode='overlay',
+                      title_text='Aligned read length histogram',
+                      hovermode="x unified",
+                      bargap=0)
     fig["layout"]["xaxis"].update(title_text="Read length")
-    lenght = fig.to_html(full_html=False, include_plotlyjs='cdn')
+    length = fig.to_html(full_html=False, include_plotlyjs='cdn')
 
     fig = go.Figure()
+    bins = round(maxlength / 500)
     for dataset, name in zip(sampled_lengths, names):
-        fig.add_trace(go.Histogram(x=np.log10([l for l in dataset if not l > maxlength]),
-                                   opacity=0.4,
-                                   name=name,
-                                   histnorm="probability density"))
+        counts, bins = np.histogram(np.log10([l for l in dataset if not l > maxlength]),
+                                    bins=bins,
+                                    density=True)
+        fig.add_trace(go.Bar(x=bins[1:],
+                             y=counts,
+                             opacity=0.4,
+                             name=name,
+                             text=[10**i for i in bins[1:]],
+                             hoverinfo="text",
+                             hovertemplate=None))
+    fig.update_layout(barmode='overlay',
+                      title_text='Aligned log-transformed read length histogram',
+                      hovermode="x unified",
+                      bargap=0)
     maxl = max(np.amax(l) for l in sampled_lengths)
     xtickvals = [10**i for i in range(10) if not 10**i > 10 * maxl]
     fig.update_layout(xaxis=dict(tickvals=np.log10(xtickvals), ticktext=xtickvals))
-    fig.update_layout(barmode='overlay', title_text='Aligned log-transformed read length histogram')
+    fig["layout"]["xaxis"].update(title_text="Read length")
     loglength = fig.to_html(full_html=False, include_plotlyjs='cdn')
-    return lenght, loglength
+
+    return length, loglength
 
 
 def plot_yields(lengths, names):
@@ -59,6 +81,7 @@ def plot_yields(lengths, names):
         print(f"{n}: {y}")
     fig = go.Figure(go.Bar(x=names, y=yields))
     fig["layout"]["yaxis"].update(title_text="Yield (Gb)")
+    fig.update_layout(title_text='Yield per individual')
     return fig.to_html(full_html=True, include_plotlyjs='cdn')
 
 
