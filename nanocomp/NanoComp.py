@@ -84,6 +84,7 @@ def make_plots(df, settings):
     sub_df = subsample_datasets(df)
     utils.plot_settings(dict(), dpi=settings["dpi"])
     df["log length"] = np.log10(df["lengths"])
+    sub_df["log length"] = np.log10(sub_df["lengths"])    
     plots = []
     plots.extend(
         compplots.output_barplot(
