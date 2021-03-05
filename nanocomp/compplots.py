@@ -9,6 +9,7 @@ import plotly
 import plotly.graph_objs as go
 import sys
 import joypy
+import pandas as pd
 
 
 def violin_or_box_plot(df, y, path, y_name, title=None, plot="violin", log=False):
@@ -23,15 +24,11 @@ def violin_or_box_plot(df, y, path, y_name, title=None, plot="violin", log=False
     if plot == 'violin':
         logging.info("NanoComp: Creating violin plot for {}.".format(y))
         
-        ax = go.Figure()
+        fig = go.Figure()
         
-        for d in df["dataset"].unique():
-            ax.add_trace(go.Violin(x=df['dataset'][df['dataset'] == d],
-                                    y=df[y][df['dataset'] == d],
-                                    name=d,
-                                    points=False))       
+        fig.add_trace(go.Violin(y=df[y], x=df["dataset"],points=False))       
         
-        process_violin_and_boxx(ax,
+        process_violin_and_box(fig,
                                log=log,
                                plot_obj=comp,
                                title=title,
@@ -41,11 +38,10 @@ def violin_or_box_plot(df, y, path, y_name, title=None, plot="violin", log=False
     elif plot == 'box':     
         logging.info("NanoComp: Creating box plot for {}.".format(y))
         
-        ax = go.Figure()
-        for d in df["dataset"].unique():
-            ax.add_trace(go.Box(y=df[y][df['dataset'] == d],name=d))          
+        fig = go.Figure()
+        fig.add_trace(go.Box(y=df[y],x=df["dataset"]))          
                          
-        process_violin_and_boxx(ax,
+        process_violin_and_box(fig,
                                log=log,
                                plot_obj=comp,
                                title=title,
@@ -55,18 +51,18 @@ def violin_or_box_plot(df, y, path, y_name, title=None, plot="violin", log=False
     elif plot == 'ridge':
         logging.info("NanoComp: Creating ridges plot for {}.".format(y))
         
-        ax = go.Figure()
+        fig = go.Figure()
         
         for d in df["dataset"].unique():
-            ax.add_trace(go.Violin(x=df[y][df['dataset'] == d],
+            fig.add_trace(go.Violin(x=df[y][df['dataset'] == d],
                                     name=d,
                                     points=False))  
             
-        ax.update_traces(orientation='h', side='positive', width=3, points=False)
-        ax.update_layout(xaxis_showgrid=False,plot_bgcolor='rgb(255,255,255)')        
-        ax.update_xaxes(showline=True, linecolor='black')
+        fig.update_traces(orientation='h', side='positive', width=3, points=False)
+        fig.update_layout(xaxis_showgrid=False,plot_bgcolor='rgb(255,255,255)',title=title or comp.title,)        
+        fig.update_xaxes(showline=True, linecolor='black')
         
-        comp.fig = ax
+        comp.fig = fig
         comp.html = comp.fig.to_html(full_html=False, include_plotlyjs='cdn')
         comp.save()
     
@@ -76,11 +72,10 @@ def violin_or_box_plot(df, y, path, y_name, title=None, plot="violin", log=False
     
     return [comp]
 
-
-def process_violin_and_box(ax, log, plot_obj, title, y_name, ymax):
+def process_violin_and_box(fig, log, plot_obj, title, y_name, ymax):
     if log:
         ticks = [10**i for i in range(10) if not 10**i > 10 * (10**ymax)]
-        ax.update_layout(
+        fig.update_layout(
             yaxis = dict(
                 tickmode = 'array',
                 tickvals = np.log10(ticks),
@@ -89,27 +84,30 @@ def process_violin_and_box(ax, log, plot_obj, title, y_name, ymax):
             )
         )
         
-    ax.update_layout(
+    fig.update_layout(
         title_text=title or plot_obj.title,
         title_x=0.5,  
         yaxis_title=y_name,
     )
     
-    plot_obj.fig = ax
+    plot_obj.fig = fig
     plot_obj.html = plot_obj.fig.to_html(full_html=False, include_plotlyjs='cdn')
     plot_obj.save()
     
-def output_barplot(df,path):
+def output_barplot(df,path,title=None):
     """Create barplots based on number of reads and total sum of nucleotides sequenced."""
     logging.info("NanoComp: Creating barplots for number of reads and total throughput.")
     read_count = Plot(path=path + "NanoComp_number_of_reads.html",
                       title="Comparing number of reads")
     
     read_count.fig = go.Figure()
-    read_count.fig.add_trace(go.Histogram(histfunc="count",  x=list(df["dataset"])))
+    
+    counts = df['dataset'].value_counts()
+        
+    read_count.fig.add_trace(go.Bar(x=counts.index,y=counts.values))
     
     read_count.fig.update_layout(
-        title_text=read_count.title,
+        title_text=title or read_count.title,
         title_x=0.5,  
         yaxis_title="Number of reads",
     )
@@ -132,7 +130,7 @@ def output_barplot(df,path):
     throughput_bases.fig.add_trace(go.Bar(x=list(df["dataset"].unique()), y=throughput))
     
     throughput_bases.fig.update_layout(
-        title_text=throughput_bases.title,
+        title=title or throughput_bases.title,
         title_x=0.5,  
         yaxis_title=ylabel,
     )
@@ -144,7 +142,7 @@ def output_barplot(df,path):
     
     return read_count, throughput_bases
 
-def n50_barplot(df, path):
+def n50_barplot(df, path, title=None):
     '''
     Returns Plot object and creates png/html containing bar chart of total gb aligned/sequenced read length n50
     '''
@@ -163,7 +161,7 @@ def n50_barplot(df, path):
     n50_bar.fig.add_trace(go.Bar(x=list(df["dataset"].unique()), y=n50s))
     
     n50_bar.fig.update_layout(
-        title_text=n50_bar.title,
+        title=title or n50_bar.title,
         title_x=0.5,  
         yaxis_title=ylabel,
     )
@@ -174,28 +172,34 @@ def n50_barplot(df, path):
     n50_bar.save()
     return [n50_bar]
 
-
-def compare_sequencing_speed(df, figformat, path, title=None, palette=None):
+def compare_sequencing_speed(df, path, title=None):
     logging.info("NanoComp: creating comparison of sequencing speed over time.")
-    seq_speed = Plot(path=path + "NanoComp_sequencing_speed_over_time." + figformat,
+    seq_speed = Plot(path=path + "NanoComp_sequencing_speed_over_time.html",
                      title="Sequencing speed over time")
+    
     dfs = check_valid_time_and_sort(df, "start_time")
     dfs['timebin'] = add_time_bins(dfs)
-    dfs = dfs.loc[dfs["duration"] > 0]
-    ax = sns.violinplot(x=dfs["timebin"],
-                        y=dfs["lengths"] / dfs["duration"],
-                        hue=dfs["dataset"],
-                        inner=None,
-                        cut=0,
-                        linewidth=0)
-    ax.set(xlabel='Interval (hours)',
-           ylabel="Sequencing speed (nucleotides/second)")
-    plt.xticks(rotation=45, ha='center', fontsize=8)
-    seq_speed.fig = ax.get_figure()
-    seq_speed.save(format=figformat)
+    dfs = dfs.loc[dfs["duration"] > 0]  
+    
+    seq_speed.fig = go.Figure(data=go.Scattergl(
+        x=dfs["timebin"],
+        y=dfs["lengths"] / dfs["duration"],
+        mode='lines'
+    ))
+    
+    seq_speed.fig.update_layout(
+        title=title or seq_speed.title,
+        title_x=0.5,        
+        xaxis_title='Interval (hours)',
+        yaxis_title="Sequencing speed (nucleotides/second)"
+    )
+    
+    seq_speed.fig.update_xaxes(tickangle = 45)
+    
+    seq_speed.html = seq_speed.fig.to_html(full_html=False, include_plotlyjs='cdn')
+    seq_speed.save()
     plt.close("all")
     return [seq_speed]
-
 
 def compare_cumulative_yields(df, path, palette=None, title=None):
     if palette is None:
@@ -372,3 +376,19 @@ def active_pores_over_time(df, path, palette=None, title=None):
     active_pores.html = active_pores.fig.to_html(full_html=False, include_plotlyjs='cdn')
     active_pores.save()
     return active_pores
+
+def subsample_datasets(df, minimal=1000):
+    list_df = []
+    
+    for d in df["dataset"].unique():
+        dataset = df.loc[df['dataset'] == d]
+        
+        if len(dataset.index) < 1000:
+            list_df.append(dataset)
+            
+        else:
+            list_df.append(dataset.sample(minimal))
+        
+    subsampled_df = pd.concat(list_df,ignore_index=True)
+        
+    return subsampled_df
