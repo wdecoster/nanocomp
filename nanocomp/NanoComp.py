@@ -101,7 +101,6 @@ def make_plots(df, settings):
         compplots.violin_or_box_plot(
             df=sub_df[sub_df["length_filter"]],
             y="lengths",
-            figformat=settings["format"],
             path=settings["path"],
             y_name="Read length",
             plot=settings["plot"],
@@ -131,22 +130,18 @@ def make_plots(df, settings):
         plots.extend(
             compplots.compare_sequencing_speed(
                 df=sub_df,
-                figformat=settings["format"],
                 path=settings["path"],
-                title=settings["title"],
-                palette=settings["colors"])
+                title=settings["title"])
         )
     if "percentIdentity" in df:
         plots.extend(
             compplots.violin_or_box_plot(
                 df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
                 y="percentIdentity",
-                figformat=settings["format"],
                 path=settings["path"],
                 y_name="Percent reference identity",
                 plot=settings["plot"],
-                title=settings["title"],
-                palette=settings["colors"])
+                title=settings["title"])
         )
         plots.append(
             compplots.overlay_histogram_identity(
