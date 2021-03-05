@@ -6,6 +6,7 @@ import nanocomp.compplots as compplots
 import numpy as np
 import logging
 from nanomath import write_stats
+from nanocomp.compplots import subsample_datasets
 
 
 def main():
@@ -80,91 +81,79 @@ def main():
 
 
 def make_plots(df, settings):
+    sub_df = subsample_datasets(df)
     utils.plot_settings(dict(), dpi=settings["dpi"])
     df["log length"] = np.log10(df["lengths"])
+    sub_df["log length"] = np.log10(sub_df["lengths"])
     plots = []
     plots.extend(
         compplots.output_barplot(
             df=df,
-            figformat=settings["format"],
             path=settings["path"],
-            title=settings["title"],
-            palette=settings["colors"])
+            title=settings["title"])
     )
     plots.extend(
         compplots.n50_barplot(
-            df=df,
-            figformat=settings["format"],
+            df=sub_df,
             path=settings["path"],
-            title=settings["title"],
-            palette=settings["colors"])
+            title=settings["title"])
     )
     plots.extend(
         compplots.violin_or_box_plot(
-            df=df[df["length_filter"]],
+            df=sub_df[sub_df["length_filter"]],
             y="lengths",
-            figformat=settings["format"],
             path=settings["path"],
             y_name="Read length",
             plot=settings["plot"],
-            title=settings["title"],
-            palette=settings["colors"])
+            title=settings["title"])
     )
     plots.extend(
         compplots.violin_or_box_plot(
-            df=df[df["length_filter"]],
+            df=sub_df[sub_df["length_filter"]],
             y="log length",
-            figformat=settings["format"],
             path=settings["path"],
             y_name="Log-transformed read length",
             plot=settings["plot"],
             log=True,
-            title=settings["title"],
-            palette=settings["colors"])
+            title=settings["title"])
     )
     if "quals" in df:
         plots.extend(
             compplots.violin_or_box_plot(
-                df=df,
+                df=sub_df,
                 y="quals",
-                figformat=settings["format"],
                 path=settings["path"],
                 y_name="Average base call quality score",
                 plot=settings["plot"],
-                title=settings["title"],
-                palette=settings["colors"])
+                title=settings["title"])
         )
     if "duration" in df:
         plots.extend(
             compplots.compare_sequencing_speed(
-                df=df,
-                figformat=settings["format"],
+                df=sub_df,
                 path=settings["path"],
-                title=settings["title"],
-                palette=settings["colors"])
+                title=settings["title"])
         )
     if "percentIdentity" in df:
         plots.extend(
             compplots.violin_or_box_plot(
-                df=df[df["percentIdentity"] > np.percentile(df["percentIdentity"], 1)],
+                df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
                 y="percentIdentity",
-                figformat=settings["format"],
                 path=settings["path"],
                 y_name="Percent reference identity",
                 plot=settings["plot"],
-                title=settings["title"],
-                palette=settings["colors"])
+                title=settings["title"])
         )
         plots.append(
             compplots.overlay_histogram_identity(
-                df=df[df["percentIdentity"] > np.percentile(df["percentIdentity"], 1)],
+                df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
                 path=settings["path"],
                 palette=settings["colors"])
         )
     if "start_time" in df:
         plots.extend(
             compplots.compare_cumulative_yields(
-                df=df,
+                df=sub_df,
                 path=settings["path"],
                 title=settings["title"],
                 palette=settings["colors"])
@@ -172,7 +161,7 @@ def make_plots(df, settings):
     if "channelIDs" in df:
         plots.append(
             compplots.active_pores_over_time(
-                df=df,
+                df=sub_df,
                 path=settings["path"],
                 palette=settings["colors"],
                 title=settings["title"]
@@ -180,7 +169,7 @@ def make_plots(df, settings):
         )
     plots.extend(
         compplots.overlay_histogram(
-            df=df,
+            df=sub_df,
             path=settings["path"],
             palette=settings["colors"]
         )
