@@ -101,11 +101,11 @@ def output_barplot(df, path, title=None):
                       title="Comparing number of reads")
 
     read_count.fig = go.Figure()
-    
-    counts = df['dataset'].value_counts()
-        
-    read_count.fig.add_trace(go.Bar(x=counts.index,y=counts.values))
-    
+
+    counts = df['dataset'].value_counts(sort=False)
+
+    read_count.fig.add_trace(go.Bar(x=counts.index, y=counts.values))
+
     read_count.fig.update_layout(
         title_text=title or read_count.title,
         title_x=0.5,
