@@ -2,13 +2,10 @@ from nanoplotter.plot import Plot
 from nanoplotter.timeplots import check_valid_time_and_sort, add_time_bins
 from nanomath import get_N50
 import logging
-import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
 import plotly
 import plotly.graph_objs as go
 import sys
-import joypy
 import pandas as pd
 
 
