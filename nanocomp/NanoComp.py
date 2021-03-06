@@ -153,7 +153,7 @@ def make_plots(df, settings):
     if "start_time" in df:
         plots.extend(
             compplots.compare_cumulative_yields(
-                df=sub_df,
+                df=df,
                 path=settings["path"],
                 title=settings["title"],
                 palette=settings["colors"])
@@ -161,7 +161,7 @@ def make_plots(df, settings):
     if "channelIDs" in df:
         plots.append(
             compplots.active_pores_over_time(
-                df=sub_df,
+                df=df,
                 path=settings["path"],
                 palette=settings["colors"],
                 title=settings["title"]
