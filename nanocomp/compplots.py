@@ -176,17 +176,23 @@ def compare_sequencing_speed(df, path, title=None):
     logging.info("NanoComp: creating comparison of sequencing speed over time.")
     seq_speed = Plot(path=path + "NanoComp_sequencing_speed_over_time.html",
                      title="Sequencing speed over time")
-    
-    dfs = check_valid_time_and_sort(df, "start_time")
-    dfs['timebin'] = add_time_bins(dfs)
+    dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
     dfs = dfs.loc[dfs["duration"] > 0]  
     
-    seq_speed.fig = go.Figure(data=go.Scattergl(
-        x=dfs["timebin"],
-        y=dfs["lengths"] / dfs["duration"],
-        mode='lines'
-    ))
+    palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
     
+    data = []
+    for sample, color in zip(df["dataset"].unique(), palette):
+        seqspeed = (dfs.loc[dfs["dataset"] == sample, "lengths"] / dfs.loc[dfs["dataset"] == sample, "duration"]).resample('30T').median()
+        data.append(go.Scatter(x=seqspeed.index.total_seconds() / 3600,
+                               y=seqspeed,
+                               opacity=0.75,
+                               name=sample,
+                               mode='lines',
+                               marker=dict(color=color)))
+        
+    seq_speed.fig = go.Figure({"data": data})  
+        
     seq_speed.fig.update_layout(
         title=title or seq_speed.title,
         title_x=0.5,        
@@ -198,7 +204,6 @@ def compare_sequencing_speed(df, path, title=None):
     
     seq_speed.html = seq_speed.fig.to_html(full_html=False, include_plotlyjs='cdn')
     seq_speed.save()
-    plt.close("all")
     return [seq_speed]
 
 def compare_cumulative_yields(df, path, palette=None, title=None):
