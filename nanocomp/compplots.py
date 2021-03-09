@@ -6,8 +6,6 @@ import numpy as np
 import plotly
 import plotly.graph_objs as go
 import sys
-import pandas as pd
-
 
 def violin_or_box_plot(df, y, path, y_name, title=None, plot="violin", log=False):
     """Create a violin/boxplot/ridge from the received DataFrame.
@@ -387,20 +385,3 @@ def active_pores_over_time(df, path, palette=None, title=None):
     active_pores.html = active_pores.fig.to_html(full_html=False, include_plotlyjs='cdn')
     active_pores.save()
     return active_pores
-
-
-def subsample_datasets(df, minimal=1000):
-    list_df = []
-
-    for d in df["dataset"].unique():
-        dataset = df.loc[df['dataset'] == d]
-
-        if len(dataset.index) < 1000:
-            list_df.append(dataset)
-
-        else:
-            list_df.append(dataset.sample(minimal))
-
-    subsampled_df = pd.concat(list_df, ignore_index=True)
-
-    return subsampled_df
