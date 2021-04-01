@@ -3,3 +3,5 @@ nanocomp/__pycache__/
 .remote-sync.json
 README.rst
 dist/
+tests/
+nanotest/
