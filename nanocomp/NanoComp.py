@@ -6,7 +6,7 @@ import nanocomp.compplots as compplots
 import numpy as np
 import logging
 from nanomath import write_stats
-from NanoPlot.nanoplotter.timeplots import subsample_datasets
+from nanoplot.utils import subsample_datasets
 
 
 def main():
