@@ -1,4 +1,3 @@
-import seaborn as sns
 import matplotlib.pyplot as plt
 import logging
 import sys
@@ -10,8 +9,6 @@ from time import time
 import textwrap as _textwrap
 from .version import __version__
 from argparse import ArgumentParser, FileType, HelpFormatter
-import matplotlib as mpl
-mpl.use('Agg')
 
 
 def make_output_dir(path):
@@ -53,27 +50,6 @@ def init_logs(args, tool="NanoComp"):
     logging.info('{} {} started with arguments {}'.format(tool, __version__, args))
     logging.info('Python version is: {}'.format(sys.version.replace('\n', ' ')))
     return logname
-
-
-def check_valid_format(figformat):
-    """Check if the specified figure format is valid.
-
-    If format is invalid the default is returned.
-    Probably installation-dependent
-    """
-    fig = plt.figure()
-    if figformat in list(fig.canvas.get_supported_filetypes().keys()):
-        logging.info("Nanoplotter: valid output format {}".format(figformat))
-        return figformat
-    else:
-        logging.info("Nanoplotter: invalid output format {}".format(figformat))
-        sys.stderr.write("Invalid format {}, using default.\n".format(figformat))
-        return "png"
-
-
-def plot_settings(plot_settings, dpi):
-    sns.set(**plot_settings)
-    mpl.rcParams['savefig.dpi'] = dpi
 
 
 def validate_split_runs_file(split_runs_file):
@@ -185,7 +161,7 @@ def get_args():
     visual = parser.add_argument_group(
         title='Options for customizing the plots created')
     visual.add_argument("-f", "--format",
-                        help="Specify the output format of the plots.",
+                        help="Specify the output format of the plots (deprecated).",
                         default="png",
                         type=str,
                         choices=['eps', 'jpeg', 'jpg', 'pdf', 'pgf', 'png', 'ps',
@@ -209,7 +185,7 @@ def get_args():
                         type=str,
                         default=None)
     visual.add_argument("--dpi",
-                        help="Set the dpi for saving images",
+                        help="Set the dpi for saving images (deprecated)",
                         type=int,
                         default=100)
     target = parser.add_argument_group(

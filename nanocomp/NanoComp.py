@@ -20,7 +20,6 @@ def main():
     try:
         utils.make_output_dir(args.outdir)
         utils.init_logs(args)
-        args.format = utils.check_valid_format(args.format)
         sources = {
             "fastq": args.fastq,
             "bam": args.bam,
@@ -82,7 +81,6 @@ def main():
 
 def make_plots(df, settings):
     sub_df = subsample_datasets(df)
-    utils.plot_settings(dict(), dpi=settings["dpi"])
     df["log length"] = np.log10(df["lengths"])
     sub_df["log length"] = np.log10(sub_df["lengths"])
     plots = []
