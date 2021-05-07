@@ -6,7 +6,6 @@ import numpy as np
 import plotly
 import plotly.graph_objs as go
 import sys
-import pandas as pd
 
 
 def violin_or_box_plot(df, y, path, y_name, title=None, plot="violin", log=False):
@@ -23,7 +22,8 @@ def violin_or_box_plot(df, y, path, y_name, title=None, plot="violin", log=False
 
         fig = go.Figure()
 
-        fig.add_trace(go.Violin(y=df[y], x=df["dataset"], points=False))
+        for dataset in df.dataset.unique():
+            fig.add_trace(go.Violin(y=df[y], x=df["dataset"][df["dataset"] == dataset], points=False, name=dataset))
 
         process_violin_and_box(fig,
                                log=log,
@@ -36,7 +36,9 @@ def violin_or_box_plot(df, y, path, y_name, title=None, plot="violin", log=False
         logging.info("NanoComp: Creating box plot for {}.".format(y))
 
         fig = go.Figure()
-        fig.add_trace(go.Box(y=df[y], x=df["dataset"]))
+
+        for dataset in df.dataset.unique():
+            fig.add_trace(go.Box(y=df[y], x=df["dataset"][df["dataset"] == dataset], name=dataset))
 
         process_violin_and_box(fig,
                                log=log,
@@ -57,7 +59,7 @@ def violin_or_box_plot(df, y, path, y_name, title=None, plot="violin", log=False
 
         fig.update_traces(orientation='h', side='positive', width=3, points=False)
         fig.update_layout(xaxis_showgrid=False, plot_bgcolor='rgb(255,255,255)',
-                          title=title or comp.title,)
+                          title=title or comp.title)
         fig.update_xaxes(showline=True, linecolor='black')
 
         comp.fig = fig
@@ -73,13 +75,12 @@ def violin_or_box_plot(df, y, path, y_name, title=None, plot="violin", log=False
 
 def process_violin_and_box(fig, log, plot_obj, title, y_name, ymax):
     if log:
-        ticks = [10**i for i in range(10) if not 10**i > 10 * (10**ymax)]
+        ticks = [10 ** i for i in range(10) if not 10 ** i > 10 * (10 ** ymax)]
         fig.update_layout(
             yaxis=dict(
                 tickmode='array',
                 tickvals=np.log10(ticks),
                 ticktext=ticks,
-                tickangle=45
             )
         )
 
@@ -103,16 +104,16 @@ def output_barplot(df, path, title=None):
     read_count.fig = go.Figure()
 
     counts = df['dataset'].value_counts(sort=False)
+    idx = counts.index
 
-    read_count.fig.add_trace(go.Bar(x=counts.index, y=counts.values))
+    for idx, count in zip(idx, counts):
+        read_count.fig.add_trace(go.Bar(x=[idx], y=[count], name=idx))
 
     read_count.fig.update_layout(
         title_text=title or read_count.title,
         title_x=0.5,
         yaxis_title="Number of reads",
     )
-
-    read_count.fig.update_xaxes(tickangle=45)
 
     read_count.html = read_count.fig.to_html(full_html=False, include_plotlyjs='cdn')
     read_count.save()
@@ -126,16 +127,17 @@ def output_barplot(df, path, title=None):
         throughput = df.groupby('dataset')['lengths'].sum()
         ylabel = 'Total bases sequenced'
 
+    idx = df["dataset"].unique()
+
     throughput_bases.fig = go.Figure()
-    throughput_bases.fig.add_trace(go.Bar(x=list(df["dataset"].unique()), y=throughput))
+    for idx, sum_dataset in zip(idx, throughput):
+        throughput_bases.fig.add_trace(go.Bar(x=[idx], y=[sum_dataset], name=idx))
 
     throughput_bases.fig.update_layout(
         title=title or throughput_bases.title,
         title_x=0.5,
         yaxis_title=ylabel,
     )
-
-    throughput_bases.fig.update_xaxes(tickangle=45)
 
     throughput_bases.html = throughput_bases.fig.to_html(full_html=False, include_plotlyjs='cdn')
     throughput_bases.save()
@@ -159,16 +161,18 @@ def n50_barplot(df, path, title=None):
                 for d in df["dataset"].unique()]
         ylabel = 'Sequenced read length N50'
 
+    idx = df["dataset"].unique()
+
     n50_bar.fig = go.Figure()
-    n50_bar.fig.add_trace(go.Bar(x=list(df["dataset"].unique()), y=n50s))
+
+    for idx, n50 in zip(idx, n50s):
+        n50_bar.fig.add_trace(go.Bar(x=[idx], y=[n50], name=idx))
 
     n50_bar.fig.update_layout(
         title=title or n50_bar.title,
         title_x=0.5,
         yaxis_title=ylabel,
     )
-
-    n50_bar.fig.update_xaxes(tickangle=45)
 
     n50_bar.html = n50_bar.fig.to_html(full_html=False, include_plotlyjs='cdn')
     n50_bar.save()
@@ -204,8 +208,6 @@ def compare_sequencing_speed(df, path, title=None):
         xaxis_title='Interval (hours)',
         yaxis_title="Sequencing speed (nucleotides/second)"
     )
-
-    seq_speed.fig.update_xaxes(tickangle=45)
 
     seq_speed.html = seq_speed.fig.to_html(full_html=False, include_plotlyjs='cdn')
     seq_speed.save()
@@ -341,12 +343,12 @@ def plot_log_histogram(df, palette, title, density=False):
                    y=counts,
                    opacity=0.4,
                    name=d,
-                   text=[10**i for i in bins[1:]],
+                   text=[10 ** i for i in bins[1:]],
                    hoverinfo="text",
                    hovertemplate=None,
                    marker=dict(color=c))
         )
-    xtickvals = [10**i for i in range(10) if not 10**i > 10 * np.amax(df["lengths"])]
+    xtickvals = [10 ** i for i in range(10) if not 10 ** i > 10 * np.amax(df["lengths"])]
 
     fig = go.Figure(
         {"data": data,
