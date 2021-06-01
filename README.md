@@ -42,10 +42,10 @@ Options for filtering or transforming input prior to plotting:
                         fields are 'NAME' and 'RUN_ID'.
 
 Options for customizing the plots created:
-  -f, --format {eps,jpeg,jpg,pdf,pgf,png,ps,raw,rgba,svg,svgz,tif,tiff}
-                        Specify the output format of the plots.
-  -n, --names names     Specify the names to be used for the datasets
-  -c, --colors colors   Specify the colors to be used for the datasets
+  -f, --format {'png'(default),'jpg','jpeg','webp','svg','pdf','eps','json'}
+                        Specify the output format of the plots. JSON output allows for customisation by the end-user after plotting the figures (https://plotly.com/python-api-reference/generated/plotly.io.read_json.html).
+  -n, --names names     Specify the names to be used for the datasets.
+  -c, --colors colors   Specify the colors to be used for the datasets.
   --plot {violin,box,ridge,false}
                         Which plot type to use: 'box', 'violin' (default), 'ridge' (joyplot) or 'false' (no plots)
   --title TITLE         Add a title to all plots, requires quoting if using spaces

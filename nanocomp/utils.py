@@ -161,11 +161,10 @@ def get_args():
     visual = parser.add_argument_group(
         title='Options for customizing the plots created')
     visual.add_argument("-f", "--format",
-                        help="Specify the output format of the plots (deprecated).",
+                        help="Specify the output format of the plots, which are in addition to the html files",
                         default="png",
                         type=str,
-                        choices=['eps', 'jpeg', 'jpg', 'pdf', 'pgf', 'png', 'ps',
-                                 'raw', 'rgba', 'svg', 'svgz', 'tif', 'tiff'])
+                        choices=['png','jpg','jpeg','webp','svg','pdf','eps','json'])
     visual.add_argument("-n", "--names",
                         help="Specify the names to be used for the datasets",
                         nargs="+",
@@ -240,3 +239,4 @@ def get_args():
     settings = vars(args)
     settings["path"] = os.path.join(args.outdir, args.prefix)
     return settings, args
+    
