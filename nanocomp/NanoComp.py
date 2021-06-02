@@ -371,13 +371,12 @@ li {
             <title>NanoComp Report</title>
         </head>"""
 
-
     html_content = []
     html_content.append('<body><nav><ul><li><a href="#stats">Summary Statistics</a></li>')
     html_content.append('<li class="submenu"><a href="#plots" class="submenubtn">Plots</a>')
     html_content.append('<ul class="submenu-items">')
     html_content.extend(['<li><a href="#'
-                + p.title.replace(' ', '_') + '">' + p.title + '</a></li>' for p in plots])
+                         + p.title.replace(' ', '_') + '">' + p.title + '</a></li>' for p in plots])
     html_content.append('</ul>')
     html_content.append('</li>')
     html_content.append(

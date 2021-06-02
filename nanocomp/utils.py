@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import logging
 import sys
 import os
@@ -164,7 +163,7 @@ def get_args():
                         help="Specify the output format of the plots, which are in addition to the html files",
                         default="png",
                         type=str,
-                        choices=['png','jpg','jpeg','webp','svg','pdf','eps','json'])
+                        choices=['png', 'jpg', 'jpeg', 'webp', 'svg', 'pdf', 'eps', 'json'])
     visual.add_argument("-n", "--names",
                         help="Specify the names to be used for the datasets",
                         nargs="+",
@@ -239,4 +238,3 @@ def get_args():
     settings = vars(args)
     settings["path"] = os.path.join(args.outdir, args.prefix)
     return settings, args
-    

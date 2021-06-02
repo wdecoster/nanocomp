@@ -1,11 +1,11 @@
 from nanoplotter.plot import Plot
-from nanoplotter.timeplots import check_valid_time_and_sort, add_time_bins
+from nanoplotter.timeplots import check_valid_time_and_sort
 from nanomath import get_N50
 import logging
 import numpy as np
 import plotly
 import plotly.graph_objs as go
-import sys 
+import sys
 
 
 def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin", log=False):
@@ -23,7 +23,8 @@ def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin"
         fig = go.Figure()
 
         for dataset in df.dataset.unique():
-            fig.add_trace(go.Violin(y=df[y], x=df["dataset"][df["dataset"] == dataset], points=False, name=dataset))
+            fig.add_trace(go.Violin(y=df[y], x=df["dataset"]
+                                    [df["dataset"] == dataset], points=False, name=dataset))
 
         process_violin_and_box(fig,
                                log=log,
@@ -61,7 +62,6 @@ def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin"
         fig.update_traces(orientation='h', side='positive', width=3, points=False)
         fig.update_layout(title=title or comp.title, title_x=0.5)
 
-
         comp.fig = fig
         comp.html = comp.fig.to_html(full_html=False, include_plotlyjs='cdn')
         comp.save(figformat=figformat)
@@ -73,7 +73,7 @@ def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin"
     return [comp]
 
 
-def process_violin_and_box(fig, log, plot_obj, title, y_name, ymax,figformat):
+def process_violin_and_box(fig, log, plot_obj, title, y_name, ymax, figformat):
     if log:
         ticks = [10 ** i for i in range(10) if not 10 ** i > 10 * (10 ** ymax)]
         fig.update_layout(
