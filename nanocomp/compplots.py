@@ -344,7 +344,8 @@ def plot_overlay_histogram(df, palette, column, title, bins=None, density=False)
          })
 
     fig.update_layout(
-        title_x=0.5
+        title_x=0.5,
+        yaxis_title = "Density" if density else "Number of reads"
     )
 
     return fig.to_html(full_html=False, include_plotlyjs='cdn'), fig
@@ -383,7 +384,8 @@ def plot_log_histogram(df, palette, title, density=False):
          })
 
     fig.update_layout(
-        title_x=0.5
+        title_x=0.5,
+        yaxis_title = "Density" if density else "Number of reads"
     )
 
     return fig.to_html(full_html=False, include_plotlyjs='cdn'), fig
