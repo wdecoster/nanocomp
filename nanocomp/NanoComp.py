@@ -156,6 +156,15 @@ def make_plots(df, settings):
                 palette=settings["colors"],
                 figformat=settings["format"])
         )
+
+        plots.append(
+            compplots.overlay_histogram_phred(
+                df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
+                path=settings["path"],
+                palette=settings["colors"],
+                figformat=settings["format"])
+        )
+
     if "start_time" in df:
         plots.extend(
             compplots.compare_cumulative_yields(

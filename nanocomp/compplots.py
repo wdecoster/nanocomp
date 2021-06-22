@@ -7,7 +7,6 @@ import plotly
 import plotly.graph_objs as go
 import sys
 
-
 def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin", log=False):
     """Create a violin/boxplot/ridge from the received DataFrame.
 
@@ -297,12 +296,31 @@ def overlay_histogram_identity(df, path, figformat, palette=None):
     hist_pid.html, hist_pid.fig = plot_overlay_histogram(
         df, palette, "percentIdentity", hist_pid.title, density=True)
     hist_pid.save(figformat=figformat)
+
     return hist_pid
 
+def overlay_histogram_phred(df, path, figformat, palette=None):
+    df["phredIdentity"] = -10 * np.log10(1 - (df["percentIdentity"] / 100))
 
-def plot_overlay_histogram(df, palette, column, title, density=False):
+    if palette is None:
+        palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    
+    hist_phred = Plot(path=path + "NanoComp_OverlayHistogram_PhredScore.html",
+                    title="Histogram of Phred scores")
+    
+    hist_phred.html, hist_phred.fig = plot_overlay_histogram(
+        df, palette, "phredIdentity", hist_phred.title, bins=20, density=True)
+    
+    hist_phred.save(figformat=figformat)
+
+    return hist_phred
+
+
+def plot_overlay_histogram(df, palette, column, title, bins=None, density=False):
     data = []
-    bins = max(round(int(np.amax(df.loc[:, column])) / 500), 10)
+    if not bins:
+        bins = max(round(int(np.amax(df.loc[:, column])) / 500), 10)
+
     for d, c in zip(df["dataset"].unique(), palette):
         counts, bins = np.histogram(df.loc[df["dataset"] == d, column],
                                     bins=bins,
@@ -324,6 +342,12 @@ def plot_overlay_histogram(df, palette, column, title, density=False):
                              title=title,
                              bargap=0)
          })
+
+    fig.update_layout(
+        title_x=0.5,
+        yaxis_title = "Density" if density else "Number of reads"
+    )
+
     return fig.to_html(full_html=False, include_plotlyjs='cdn'), fig
 
 
@@ -358,8 +382,13 @@ def plot_log_histogram(df, palette, title, density=False):
                                         ticktext=xtickvals),
                              bargap=0)
          })
-    return fig.to_html(full_html=False, include_plotlyjs='cdn'), fig
 
+    fig.update_layout(
+        title_x=0.5,
+        yaxis_title = "Density" if density else "Number of reads"
+    )
+
+    return fig.to_html(full_html=False, include_plotlyjs='cdn'), fig
 
 def active_pores_over_time(df, path, figformat, palette=None, title=None):
     if palette is None:
@@ -386,6 +415,12 @@ def active_pores_over_time(df, path, figformat, palette=None, title=None):
                             xaxis=dict(title="Time (hours)"),
                             yaxis=dict(title="Active pores (per 10 minutes)"),
                             )})
+
+    fig.update_layout(
+        title_x=0.5
+    )
+
     active_pores.html = active_pores.fig.to_html(full_html=False, include_plotlyjs='cdn')
     active_pores.save(figformat=figformat)
+    
     return active_pores
