@@ -102,7 +102,7 @@ def output_barplot(df, path, figformat, title=None):
 
     read_count.fig = go.Figure()
 
-    counts = df['dataset'].value_counts(sort=False)
+    counts = df['dataset'].value_counts(sort=False).sort_index()
     idx = counts.index
 
     for idx, count in zip(idx, counts):
@@ -416,7 +416,7 @@ def active_pores_over_time(df, path, figformat, palette=None, title=None):
                             yaxis=dict(title="Active pores (per 10 minutes)"),
                             )})
 
-    fig.update_layout(
+    active_pores.fig.update_layout(
         title_x=0.5
     )
 
