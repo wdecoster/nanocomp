@@ -22,9 +22,11 @@ def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin"
 
         fig = go.Figure()
 
-        for dataset in df.dataset.unique():
-            fig.add_trace(go.Violin(y=df[y], x=df["dataset"]
-                                    [df["dataset"] == dataset], points=False, name=dataset))
+        for dataset in df["dataset"].unique():
+            fig.add_trace(go.Violin(x=df["dataset"][df["dataset"] == dataset],
+                                    y=df[y][df["dataset"] == dataset],
+                                    points=False,
+                                    name=dataset))
 
         process_violin_and_box(fig,
                                log=log,
@@ -39,8 +41,11 @@ def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin"
 
         fig = go.Figure()
 
-        for dataset in df.dataset.unique():
-            fig.add_trace(go.Box(y=df[y], x=df["dataset"][df["dataset"] == dataset], name=dataset))
+        for dataset in df["dataset"].unique():
+            fig.add_trace(go.Box(x=df["dataset"][df["dataset"] == dataset],
+                                 y=df[y][df["dataset"] == dataset],
+                                 points=False,
+                                 name=dataset))
 
         process_violin_and_box(fig,
                                log=log,
