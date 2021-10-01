@@ -44,7 +44,6 @@ def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin"
         for dataset in df["dataset"].unique():
             fig.add_trace(go.Box(x=df["dataset"][df["dataset"] == dataset],
                                  y=df[y][df["dataset"] == dataset],
-                                 points=False,
                                  name=dataset))
 
         process_violin_and_box(fig,
