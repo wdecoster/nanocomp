@@ -9,7 +9,7 @@ exec(open('nanocomp/version.py').read())
 
 setup(
     name='NanoComp',
-    version=__version__,
+    version=__version__,  # noqa F821
     description='Comparing runs of Oxford Nanopore sequencing data and alignments',
     long_description=open(path.join(here, "README.md")).read(),
     long_description_content_type="text/markdown",
