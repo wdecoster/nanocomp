@@ -7,6 +7,7 @@ import plotly
 import plotly.graph_objs as go
 import sys
 
+
 def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin", log=False):
     """Create a violin/boxplot/ridge from the received DataFrame.
 
@@ -21,9 +22,11 @@ def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin"
 
         fig = go.Figure()
 
-        for dataset in df.dataset.unique():
-            fig.add_trace(go.Violin(y=df[y], x=df["dataset"]
-                                    [df["dataset"] == dataset], points=False, name=dataset))
+        for dataset in df["dataset"].unique():
+            fig.add_trace(go.Violin(x=df["dataset"][df["dataset"] == dataset],
+                                    y=df[y][df["dataset"] == dataset],
+                                    points=False,
+                                    name=dataset))
 
         process_violin_and_box(fig,
                                log=log,
@@ -38,8 +41,10 @@ def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin"
 
         fig = go.Figure()
 
-        for dataset in df.dataset.unique():
-            fig.add_trace(go.Box(y=df[y], x=df["dataset"][df["dataset"] == dataset], name=dataset))
+        for dataset in df["dataset"].unique():
+            fig.add_trace(go.Box(x=df["dataset"][df["dataset"] == dataset],
+                                 y=df[y][df["dataset"] == dataset],
+                                 name=dataset))
 
         process_violin_and_box(fig,
                                log=log,
@@ -299,18 +304,19 @@ def overlay_histogram_identity(df, path, figformat, palette=None):
 
     return hist_pid
 
+
 def overlay_histogram_phred(df, path, figformat, palette=None):
     df["phredIdentity"] = -10 * np.log10(1 - (df["percentIdentity"] / 100))
 
     if palette is None:
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
-    
+
     hist_phred = Plot(path=path + "NanoComp_OverlayHistogram_PhredScore.html",
-                    title="Histogram of Phred scores")
-    
+                      title="Histogram of Phred scores")
+
     hist_phred.html, hist_phred.fig = plot_overlay_histogram(
         df, palette, "phredIdentity", hist_phred.title, bins=20, density=True)
-    
+
     hist_phred.save(figformat=figformat)
 
     return hist_phred
@@ -345,7 +351,7 @@ def plot_overlay_histogram(df, palette, column, title, bins=None, density=False)
 
     fig.update_layout(
         title_x=0.5,
-        yaxis_title = "Density" if density else "Number of reads"
+        yaxis_title="Density" if density else "Number of reads"
     )
 
     return fig.to_html(full_html=False, include_plotlyjs='cdn'), fig
@@ -385,10 +391,11 @@ def plot_log_histogram(df, palette, title, density=False):
 
     fig.update_layout(
         title_x=0.5,
-        yaxis_title = "Density" if density else "Number of reads"
+        yaxis_title="Density" if density else "Number of reads"
     )
 
     return fig.to_html(full_html=False, include_plotlyjs='cdn'), fig
+
 
 def active_pores_over_time(df, path, figformat, palette=None, title=None):
     if palette is None:
@@ -422,5 +429,5 @@ def active_pores_over_time(df, path, figformat, palette=None, title=None):
 
     active_pores.html = active_pores.fig.to_html(full_html=False, include_plotlyjs='cdn')
     active_pores.save(figformat=figformat)
-    
+
     return active_pores
