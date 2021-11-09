@@ -306,7 +306,14 @@ def overlay_histogram_identity(df, path, figformat, palette=None):
 
 
 def overlay_histogram_phred(df, path, figformat, palette=None):
+    """
+    Reads with a perfect alignment and thus a percentIdentity of 100
+    get a phred score of Inf
+    Which is not cool
+    So these are set to 60, a very high phred score
+    """
     df["phredIdentity"] = -10 * np.log10(1 - (df["percentIdentity"] / 100))
+    df["phredIdentity"][np.isinf(df["phredIdentity"])] = 60
 
     if palette is None:
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
