@@ -8,17 +8,17 @@ import plotly.graph_objs as go
 import sys
 
 
-def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin", log=False):
+def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin", log=False):
     """Create a violin/boxplot/ridge from the received DataFrame.
 
     The x-axis should be divided based on the 'dataset' column,
     the y-axis is specified in the arguments
     """
-    comp = Plot(path=path + "NanoComp_" + y.replace(' ', '_')+"_" + plot + '.html',
-                title="Comparing {}".format(y_name.lower()))
+    comp = Plot(path=f"{path}NanoComp_{y.replace(' ', '_')}_{plot}.html",
+                title=f"Comparing {y_name.lower()}")
 
     if plot == 'violin':
-        logging.info("NanoComp: Creating violin plot for {}.".format(y))
+        logging.info(f"NanoComp: Creating violin plot for {y}.")
 
         fig = go.Figure()
 
@@ -34,7 +34,7 @@ def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin"
                                title=title,
                                y_name=y_name,
                                ymax=np.amax(df[y]),
-                               figformat=figformat)
+                               settings=settings)
 
     elif plot == 'box':
         logging.info("NanoComp: Creating box plot for {}.".format(y))
@@ -52,7 +52,7 @@ def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin"
                                title=title,
                                y_name=y_name,
                                ymax=np.amax(df[y]),
-                               figformat=figformat)
+                               settings=settings)
 
     elif plot == 'ridge':
         logging.info("NanoComp: Creating ridges plot for {}.".format(y))
@@ -68,16 +68,16 @@ def violin_or_box_plot(df, y, path, y_name, figformat, title=None, plot="violin"
 
         comp.fig = fig
         comp.html = comp.fig.to_html(full_html=False, include_plotlyjs='cdn')
-        comp.save(figformat=figformat)
+        comp.save(settings)
 
     else:
-        logging.error("Unknown comp plot type {}".format(plot))
-        sys.exit("Unknown comp plot type {}".format(plot))
+        logging.error(f"Unknown comp plot type {plot}")
+        sys.exit(f"Unknown comp plot type {plot}")
 
     return [comp]
 
 
-def process_violin_and_box(fig, log, plot_obj, title, y_name, ymax, figformat):
+def process_violin_and_box(fig, log, plot_obj, title, y_name, ymax, settings):
     if log:
         ticks = [10 ** i for i in range(10) if not 10 ** i > 10 * (10 ** ymax)]
         fig.update_layout(
@@ -96,10 +96,10 @@ def process_violin_and_box(fig, log, plot_obj, title, y_name, ymax, figformat):
 
     plot_obj.fig = fig
     plot_obj.html = plot_obj.fig.to_html(full_html=False, include_plotlyjs='cdn')
-    plot_obj.save(figformat=figformat)
+    plot_obj.save(settings)
 
 
-def output_barplot(df, path, figformat, title=None):
+def output_barplot(df, path, settings, title=None):
     """Create barplots based on number of reads and total sum of nucleotides sequenced."""
     logging.info("NanoComp: Creating barplots for number of reads and total throughput.")
     read_count = Plot(path=path + "NanoComp_number_of_reads.html",
@@ -120,7 +120,7 @@ def output_barplot(df, path, figformat, title=None):
     )
 
     read_count.html = read_count.fig.to_html(full_html=False, include_plotlyjs='cdn')
-    read_count.save(figformat=figformat)
+    read_count.save(settings)
 
     throughput_bases = Plot(path=path + "NanoComp_total_throughput.html",
                             title="Comparing throughput in bases")
@@ -144,12 +144,12 @@ def output_barplot(df, path, figformat, title=None):
     )
 
     throughput_bases.html = throughput_bases.fig.to_html(full_html=False, include_plotlyjs='cdn')
-    throughput_bases.save(figformat=figformat)
+    throughput_bases.save(settings)
 
     return read_count, throughput_bases
 
 
-def n50_barplot(df, path, figformat, title=None):
+def n50_barplot(df, path, settings, title=None):
     '''
     Returns Plot object and creates figure(format specified)/html
     containing bar chart of total gb aligned/sequenced read length n50
@@ -179,11 +179,11 @@ def n50_barplot(df, path, figformat, title=None):
     )
 
     n50_bar.html = n50_bar.fig.to_html(full_html=False, include_plotlyjs='cdn')
-    n50_bar.save(figformat=figformat)
+    n50_bar.save(settings)
     return [n50_bar]
 
 
-def compare_sequencing_speed(df, path, figformat, title=None):
+def compare_sequencing_speed(df, path, settings, title=None):
     logging.info("NanoComp: creating comparison of sequencing speed over time.")
     seq_speed = Plot(path=path + "NanoComp_sequencing_speed_over_time.html",
                      title="Sequencing speed over time")
@@ -214,11 +214,11 @@ def compare_sequencing_speed(df, path, figformat, title=None):
     )
 
     seq_speed.html = seq_speed.fig.to_html(full_html=False, include_plotlyjs='cdn')
-    seq_speed.save(figformat=figformat)
+    seq_speed.save(settings)
     return [seq_speed]
 
 
-def compare_cumulative_yields(df, path, figformat, palette=None, title=None):
+def compare_cumulative_yields(df, path, settings, palette=None, title=None):
     if palette is None:
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
@@ -254,11 +254,11 @@ def compare_cumulative_yields(df, path, figformat, palette=None, title=None):
                             annotations=annotations
                             )})
     cum_yield_gb.html = cum_yield_gb.fig.to_html(full_html=False, include_plotlyjs='cdn')
-    cum_yield_gb.save(figformat=figformat)
+    cum_yield_gb.save(settings)
     return [cum_yield_gb]
 
 
-def overlay_histogram(df, path, figformat, palette=None):
+def overlay_histogram(df, path, settings, palette=None):
     """
     Use plotly to create an overlay of length histograms
     Return html code, but also save as figure (format specified)
@@ -271,41 +271,41 @@ def overlay_histogram(df, path, figformat, palette=None):
     hist = Plot(path=path + "NanoComp_OverlayHistogram.html",
                 title="Histogram of read lengths")
     hist.html, hist.fig = plot_overlay_histogram(df, palette, column='lengths', title=hist.title)
-    hist.save(figformat=figformat)
+    hist.save(settings)
 
     hist_norm = Plot(path=path + "NanoComp_OverlayHistogram_Normalized.html",
                      title="Normalized histogram of read lengths")
     hist_norm.html, hist_norm.fig = plot_overlay_histogram(
         df, palette, column='lengths', title=hist_norm.title, density=True)
-    hist_norm.save(figformat=figformat)
+    hist_norm.save(settings)
 
     log_hist = Plot(path=path + "NanoComp_OverlayLogHistogram.html",
                     title="Histogram of log transformed read lengths")
     log_hist.html, log_hist.fig = plot_log_histogram(df, palette, title=log_hist.title)
-    log_hist.save(figformat=figformat)
+    log_hist.save(settings)
 
     log_hist_norm = Plot(path=path + "NanoComp_OverlayLogHistogram_Normalized.html",
                          title="Normalized histogram of log transformed read lengths")
     log_hist_norm.html, log_hist_norm.fig = plot_log_histogram(
         df, palette, title=log_hist_norm.title, density=True)
-    log_hist_norm.save(figformat=figformat)
+    log_hist_norm.save(settings)
 
     return [hist, hist_norm, log_hist, log_hist_norm]
 
 
-def overlay_histogram_identity(df, path, figformat, palette=None):
+def overlay_histogram_identity(df, path, settings, palette=None):
     if palette is None:
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
     hist_pid = Plot(path=path + "NanoComp_OverlayHistogram_Identity.html",
                     title="Histogram of percent reference identity")
     hist_pid.html, hist_pid.fig = plot_overlay_histogram(
         df, palette, "percentIdentity", hist_pid.title, density=True)
-    hist_pid.save(figformat=figformat)
+    hist_pid.save(settings)
 
     return hist_pid
 
 
-def overlay_histogram_phred(df, path, figformat, palette=None):
+def overlay_histogram_phred(df, path, settings, palette=None):
     """
     Reads with a perfect alignment and thus a percentIdentity of 100
     get a phred score of Inf
@@ -324,7 +324,7 @@ def overlay_histogram_phred(df, path, figformat, palette=None):
     hist_phred.html, hist_phred.fig = plot_overlay_histogram(
         df, palette, "phredIdentity", hist_phred.title, bins=20, density=True)
 
-    hist_phred.save(figformat=figformat)
+    hist_phred.save(settings)
 
     return hist_phred
 
@@ -404,7 +404,7 @@ def plot_log_histogram(df, palette, title, density=False):
     return fig.to_html(full_html=False, include_plotlyjs='cdn'), fig
 
 
-def active_pores_over_time(df, path, figformat, palette=None, title=None):
+def active_pores_over_time(df, path, settings, palette=None, title=None):
     if palette is None:
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
@@ -435,6 +435,6 @@ def active_pores_over_time(df, path, figformat, palette=None, title=None):
     )
 
     active_pores.html = active_pores.fig.to_html(full_html=False, include_plotlyjs='cdn')
-    active_pores.save(figformat=figformat)
+    active_pores.save(settings)
 
     return active_pores

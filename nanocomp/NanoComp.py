@@ -89,14 +89,14 @@ def make_plots(df, settings):
             df=df,
             path=settings["path"],
             title=settings["title"],
-            figformat=settings["format"])
+            settings=settings)
     )
     plots.extend(
         compplots.n50_barplot(
             df=sub_df,
             path=settings["path"],
             title=settings["title"],
-            figformat=settings["format"])
+            settings=settings)
     )
     plots.extend(
         compplots.violin_or_box_plot(
@@ -106,7 +106,7 @@ def make_plots(df, settings):
             y_name="Read length",
             plot=settings["plot"],
             title=settings["title"],
-            figformat=settings["format"])
+            settings=settings)
     )
     plots.extend(
         compplots.violin_or_box_plot(
@@ -117,7 +117,7 @@ def make_plots(df, settings):
             plot=settings["plot"],
             log=True,
             title=settings["title"],
-            figformat=settings["format"])
+            settings=settings)
     )
     if "quals" in df:
         plots.extend(
@@ -128,7 +128,7 @@ def make_plots(df, settings):
                 y_name="Average base call quality score",
                 plot=settings["plot"],
                 title=settings["title"],
-                figformat=settings["format"])
+                settings=settings)
         )
     if "duration" in df:
         plots.extend(
@@ -136,7 +136,7 @@ def make_plots(df, settings):
                 df=sub_df,
                 path=settings["path"],
                 title=settings["title"],
-                figformat=settings["format"])
+                settings=settings)
         )
     if "percentIdentity" in df:
         plots.extend(
@@ -147,14 +147,14 @@ def make_plots(df, settings):
                 y_name="Percent reference identity",
                 plot=settings["plot"],
                 title=settings["title"],
-                figformat=settings["format"])
+                settings=settings)
         )
         plots.append(
             compplots.overlay_histogram_identity(
                 df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
                 path=settings["path"],
                 palette=settings["colors"],
-                figformat=settings["format"])
+                settings=settings)
         )
 
         plots.append(
@@ -162,7 +162,7 @@ def make_plots(df, settings):
                 df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
                 path=settings["path"],
                 palette=settings["colors"],
-                figformat=settings["format"])
+                settings=settings)
         )
 
     if "start_time" in df:
@@ -172,7 +172,7 @@ def make_plots(df, settings):
                 path=settings["path"],
                 title=settings["title"],
                 palette=settings["colors"],
-                figformat=settings["format"])
+                settings=settings)
         )
     if "channelIDs" in df:
         plots.append(
@@ -181,7 +181,7 @@ def make_plots(df, settings):
                 path=settings["path"],
                 palette=settings["colors"],
                 title=settings["title"],
-                figformat=settings["format"]
+                settings=settings
             )
         )
     plots.extend(
@@ -189,7 +189,7 @@ def make_plots(df, settings):
             df=sub_df,
             path=settings["path"],
             palette=settings["colors"],
-            figformat=settings["format"]
+            settings=settings
         )
     )
     return plots
