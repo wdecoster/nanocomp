@@ -34,7 +34,7 @@ setup(
                       'numpy>=1.16.5',
                       'nanoget>=1.4.0',
                       'nanomath>=1.0.0',
-                      'NanoPlot>=1.35.2',
+                      'NanoPlot>=1.39.0',
                       'psutil',
                       'plotly>=3.4.2',
                       'pyarrow'
