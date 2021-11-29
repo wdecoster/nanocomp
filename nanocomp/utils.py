@@ -133,6 +133,9 @@ def get_args():
     general.add_argument("--tsv_stats",
                          help="Output the stats file as a properly formatted TSV.",
                          action='store_true')
+    general.add_argument("--no_static",
+                         help="Do not make static (png) plots.",
+                         action="store_true")
     filtering = parser.add_argument_group(
         title='Options for filtering or transforming input prior to plotting')
     filtering.add_argument("--readtype",
