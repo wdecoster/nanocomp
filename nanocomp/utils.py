@@ -159,53 +159,6 @@ def get_args():
         help="Output the stats file as a properly formatted TSV.",
         action="store_true",
     )
-    general = parser.add_argument_group(title="General options")
-    general.add_argument("-h", "--help", action="help", help="show the help and exit")
-    general.add_argument(
-        "-v",
-        "--version",
-        help="Print version and exit.",
-        action="version",
-        version="NanoComp {}".format(__version__),
-    )
-    general.add_argument(
-        "-t",
-        "--threads",
-        help="Set the allowed number of threads to be used by the script",
-        default=4,
-        type=int,
-    )
-    general.add_argument(
-        "-o",
-        "--outdir",
-        help="Specify directory in which output has to be created.",
-        default=".",
-    )
-    general.add_argument(
-        "-p",
-        "--prefix",
-        help="Specify an optional prefix to be used for the output files.",
-        default="",
-        type=str,
-    )
-    general.add_argument(
-        "--verbose", help="Write log messages also to terminal.", action="store_true"
-    )
-    general.add_argument(
-        "--raw",
-        help="Store the extracted data in tab separated file.",
-        action="store_true",
-    )
-    general.add_argument(
-        "--store",
-        help="Store the extracted data in a pickle file for future plotting.",
-        action="store_true",
-    )
-    general.add_argument(
-        "--tsv_stats",
-        help="Output the stats file as a properly formatted TSV.",
-        action="store_true",
-    )
     general.add_argument(
         "--make_no_static",
         help="Do not make static (png) plots.",
