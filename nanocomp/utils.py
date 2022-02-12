@@ -305,6 +305,7 @@ def get_args():
     args = parser.parse_args()
     sources = [
         args.fastq,
+        args.fastq_rich,
         args.summary,
         args.bam,
         args.fasta,
