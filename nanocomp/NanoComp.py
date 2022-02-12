@@ -10,18 +10,19 @@ from nanoplot.utils import subsample_datasets
 
 
 def main():
-    '''
+    """
     Organization function
     -setups logging
     -gets inputdata
     -calls plotting function
-    '''
+    """
     settings, args = utils.get_args()
     try:
         utils.make_output_dir(args.outdir)
         utils.init_logs(args)
         sources = {
             "fastq": args.fastq,
+            "fastq_rich": args.fastq_rich,
             "bam": args.bam,
             "cram": args.cram,
             "summary": args.summary,
@@ -32,15 +33,21 @@ def main():
             split_dict = utils.validate_split_runs_file(args.split_runs)
         if args.pickle:
             from nanoget import combine_dfs
-            datadf = combine_dfs(dfs=[pickle.load(open(p, 'rb')) for p in args.pickle],
-                                 names=args.names,
-                                 method="track")
+
+            datadf = combine_dfs(
+                dfs=[pickle.load(open(p, "rb")) for p in args.pickle],
+                names=args.names,
+                method="track",
+            )
         elif args.feather:
             from nanoget import combine_dfs
             from pandas import read_feather
-            datadf = combine_dfs([read_feather(p) for p in args.feather],
-                                 names=args.names or args.feather,
-                                 method="track")
+
+            datadf = combine_dfs(
+                [read_feather(p) for p in args.feather],
+                names=args.names or args.feather,
+                method="track",
+            )
         else:
             datadf = nanoget.get_input(
                 source=[n for n, s in sources.items() if s][0],
@@ -49,17 +56,20 @@ def main():
                 readtype=args.readtype,
                 names=args.names,
                 barcoded=args.barcoded,
-                combine="track")
+                combine="track",
+            )
         datadf, settings = filter_and_transform_data(datadf, vars(args))
         if args.raw:
-            datadf.to_csv(settings["path"] + "NanoComp-data.tsv.gz",
-                          sep="\t",
-                          index=False,
-                          compression="gzip")
+            datadf.to_csv(
+                settings["path"] + "NanoComp-data.tsv.gz",
+                sep="\t",
+                index=False,
+                compression="gzip",
+            )
         if args.store:
             pickle.dump(
-                obj=datadf,
-                file=open(settings["path"] + "NanoComp-data.pickle", 'wb'))
+                obj=datadf, file=open(settings["path"] + "NanoComp-data.pickle", "wb")
+            )
         if args.split_runs:
             utils.change_identifiers(datadf, split_dict)
         if args.barcoded:
@@ -69,8 +79,9 @@ def main():
             datadfs=[datadf[datadf["dataset"] == i] for i in identifiers],
             outputfile=settings["path"] + "NanoStats.txt",
             names=identifiers,
-            as_tsv=args.tsv_stats)
-        if args.plot != 'false':
+            as_tsv=args.tsv_stats,
+        )
+        if args.plot != "false":
             plots = make_plots(datadf, settings)
             make_report(plots, settings["path"], stats_df=stats_df)
         logging.info("Succesfully processed all input.")
@@ -86,17 +97,13 @@ def make_plots(df, settings):
     plots = []
     plots.extend(
         compplots.output_barplot(
-            df=df,
-            path=settings["path"],
-            title=settings["title"],
-            settings=settings)
+            df=df, path=settings["path"], title=settings["title"], settings=settings
+        )
     )
     plots.extend(
         compplots.n50_barplot(
-            df=sub_df,
-            path=settings["path"],
-            title=settings["title"],
-            settings=settings)
+            df=sub_df, path=settings["path"], title=settings["title"], settings=settings
+        )
     )
     plots.extend(
         compplots.violin_or_box_plot(
@@ -106,7 +113,8 @@ def make_plots(df, settings):
             y_name="Read length",
             plot=settings["plot"],
             title=settings["title"],
-            settings=settings)
+            settings=settings,
+        )
     )
     plots.extend(
         compplots.violin_or_box_plot(
@@ -117,7 +125,8 @@ def make_plots(df, settings):
             plot=settings["plot"],
             log=True,
             title=settings["title"],
-            settings=settings)
+            settings=settings,
+        )
     )
     if "quals" in df:
         plots.extend(
@@ -128,7 +137,8 @@ def make_plots(df, settings):
                 y_name="Average base call quality score",
                 plot=settings["plot"],
                 title=settings["title"],
-                settings=settings)
+                settings=settings,
+            )
         )
     if "duration" in df:
         plots.extend(
@@ -136,33 +146,46 @@ def make_plots(df, settings):
                 df=sub_df,
                 path=settings["path"],
                 title=settings["title"],
-                settings=settings)
+                settings=settings,
+            )
         )
     if "percentIdentity" in df:
         plots.extend(
             compplots.violin_or_box_plot(
-                df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
+                df=sub_df[
+                    sub_df["percentIdentity"]
+                    > np.percentile(sub_df["percentIdentity"], 1)
+                ],
                 y="percentIdentity",
                 path=settings["path"],
                 y_name="Percent reference identity",
                 plot=settings["plot"],
                 title=settings["title"],
-                settings=settings)
+                settings=settings,
+            )
         )
         plots.append(
             compplots.overlay_histogram_identity(
-                df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
+                df=sub_df[
+                    sub_df["percentIdentity"]
+                    > np.percentile(sub_df["percentIdentity"], 1)
+                ],
                 path=settings["path"],
                 palette=settings["colors"],
-                settings=settings)
+                settings=settings,
+            )
         )
 
         plots.append(
             compplots.overlay_histogram_phred(
-                df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
+                df=sub_df[
+                    sub_df["percentIdentity"]
+                    > np.percentile(sub_df["percentIdentity"], 1)
+                ],
                 path=settings["path"],
                 palette=settings["colors"],
-                settings=settings)
+                settings=settings,
+            )
         )
 
     if "start_time" in df:
@@ -172,7 +195,8 @@ def make_plots(df, settings):
                 path=settings["path"],
                 title=settings["title"],
                 palette=settings["colors"],
-                settings=settings)
+                settings=settings,
+            )
         )
     if "channelIDs" in df:
         plots.append(
@@ -181,7 +205,7 @@ def make_plots(df, settings):
                 path=settings["path"],
                 palette=settings["colors"],
                 title=settings["title"],
-                settings=settings
+                settings=settings,
             )
         )
     plots.extend(
@@ -189,19 +213,19 @@ def make_plots(df, settings):
             df=sub_df,
             path=settings["path"],
             palette=settings["colors"],
-            settings=settings
+            settings=settings,
         )
     )
     return plots
 
 
 def make_report(plots, path, stats_df):
-    '''
+    """
     Creates a fat html report based on the previously created files
     plots is a list of Plot objects defined by a path and title
     statsfile is the file to which the stats have been saved,
     which is parsed to a table (rather dodgy)
-    '''
+    """
     logging.info("Writing html report.")
     html_head = """<!DOCTYPE html>
     <html>
@@ -381,18 +405,29 @@ li {
         </head>"""
 
     html_content = []
-    html_content.append('<body><nav><ul><li><a href="#stats">Summary Statistics</a></li>')
-    html_content.append('<li class="submenu"><a href="#plots" class="submenubtn">Plots</a>')
-    html_content.append('<ul class="submenu-items">')
-    html_content.extend(['<li><a href="#'
-                         + p.title.replace(' ', '_') + '">' + p.title + '</a></li>' for p in plots])
-    html_content.append('</ul>')
-    html_content.append('</li>')
     html_content.append(
-        '<li class="issue-btn"><a href="https://github.com/wdecoster/nanocomp/issues" target="_blank"  class="reporting">Report issue on Github</a></li>')
-    html_content.append('</ul></nav>')
+        '<body><nav><ul><li><a href="#stats">Summary Statistics</a></li>'
+    )
+    html_content.append(
+        '<li class="submenu"><a href="#plots" class="submenubtn">Plots</a>'
+    )
+    html_content.append('<ul class="submenu-items">')
+    html_content.extend(
+        [
+            '<li><a href="#' + p.title.replace(" ", "_") + '">' + p.title + "</a></li>"
+            for p in plots
+        ]
+    )
+    html_content.append("</ul>")
+    html_content.append("</li>")
+    html_content.append(
+        '<li class="issue-btn"><a href="https://github.com/wdecoster/nanocomp/issues" target="_blank"  class="reporting">Report issue on Github</a></li>'
+    )
+    html_content.append("</ul></nav>")
     html_content.append("<h1>NanoComp report</h1>")
-    html_content.append("<h2 id='stats'>Summary statistics</h2><div class='tablewrapper'>")
+    html_content.append(
+        "<h2 id='stats'>Summary statistics</h2><div class='tablewrapper'>"
+    )
     if stats_df is not None:
         html_content.append(stats_df.to_html())
     else:
@@ -401,24 +436,30 @@ li {
     html_content.append("</div><h2 id='plots'>Plots</h2>")
 
     for plot in plots:
-        html_content.append('<button class="collapsible">' + plot.title + '</button>')
-        html_content.append('<section class="collapsible-content"><h4 class="hiddentitle" id="' +
-                            plot.title.replace(' ', '_') + '">' + plot.title + '</h4>')
+        html_content.append('<button class="collapsible">' + plot.title + "</button>")
+        html_content.append(
+            '<section class="collapsible-content"><h4 class="hiddentitle" id="'
+            + plot.title.replace(" ", "_")
+            + '">'
+            + plot.title
+            + "</h4>"
+        )
         html_content.append(plot.encode())
-        html_content.append('</section>')
+        html_content.append("</section>")
 
     html_content.append(
         '<script>var coll = document.getElementsByClassName("collapsible");var i;for (i = 0; i < coll.length; i++) {'
         'coll[i].addEventListener("click", function() {this.classList.toggle("active");var content = '
         'this.nextElementSibling;if (content.style.display === "none") {content.style.display = "block";} else {'
-        'content.style.display = "none";}});}</script>')
+        'content.style.display = "none";}});}</script>'
+    )
 
-    html_body = '\n'.join(html_content) + "</body></html>"
+    html_body = "\n".join(html_content) + "</body></html>"
     html_str = html_head + html_body
     with open(path + "NanoComp-report.html", "w") as html_file:
         html_file.write(html_str)
     return path + "NanoComp-report.html"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
