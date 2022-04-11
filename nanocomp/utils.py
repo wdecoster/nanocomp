@@ -21,10 +21,7 @@ def make_output_dir(path):
 def chunks(values, chunks):
     if values:
         chunksize = int(len(values) / chunks)
-        return [
-            " ".join(values[i : i + chunksize])
-            for i in range(0, len(values), chunksize)
-        ]
+        return [" ".join(values[i : i + chunksize]) for i in range(0, len(values), chunksize)]
     else:
         return [" "] * chunks
 
@@ -32,9 +29,7 @@ def chunks(values, chunks):
 def stats2html(statsf):
     """for legacy stats output files"""
     df = pd.read_csv(statsf, sep=":", header=None, names=["feature", "value"])
-    values = (
-        df["value"].str.strip().str.replace("\t", " ").str.split().replace(np.nan, "")
-    )
+    values = df["value"].str.strip().str.replace("\t", " ").str.split().replace(np.nan, "")
     num = len(values[0]) or 1
     v = [chunks(i, num) for i in values]
     return pd.DataFrame(v, index=df["feature"]).to_html(header=False)
@@ -47,9 +42,7 @@ def init_logs(args, tool="NanoComp"):
     handlers = [logging.FileHandler(logname)]
     if args.verbose:
         handlers.append(logging.StreamHandler())
-    logging.basicConfig(
-        format="%(asctime)s %(message)s", handlers=handlers, level=logging.INFO
-    )
+    logging.basicConfig(format="%(asctime)s %(message)s", handlers=handlers, level=logging.INFO)
     logging.info("{} {} started with arguments {}".format(tool, __version__, args))
     logging.info("Python version is: {}".format(sys.version.replace("\n", " ")))
     return logname
@@ -62,17 +55,11 @@ def validate_split_runs_file(split_runs_file):
         if content[0].upper().split("\t") == ["NAME", "RUN_ID"]:
             return {c.split("\t")[1]: c.split("\t")[0] for c in content[1:] if c}
         else:
-            sys.exit(
-                "ERROR: Mandatory header of --split_runs tsv file not found: 'NAME', 'RUN_ID'"
-            )
-            logging.error(
-                "Mandatory header of --split_runs tsv file not found: 'NAME', 'RUN_ID'"
-            )
+            sys.exit("ERROR: Mandatory header of --split_runs tsv file not found: 'NAME', 'RUN_ID'")
+            logging.error("Mandatory header of --split_runs tsv file not found: 'NAME', 'RUN_ID'")
     except IndexError:
         sys.exit("ERROR: Format of --split_runs tab separated file not as expected")
-        logging.error(
-            "ERROR: Format of --split_runs tab separated file not as expected"
-        )
+        logging.error("ERROR: Format of --split_runs tab separated file not as expected")
 
 
 def change_identifiers(datadf, split_dict):
@@ -200,15 +187,13 @@ def get_args():
         type=FileType("r"),
         metavar="TSV_FILE",
     )
-    visual = parser.add_argument_group(
-        title="Options for customizing the plots created"
-    )
+    visual = parser.add_argument_group(title="Options for customizing the plots created")
     visual.add_argument(
         "-f",
         "--format",
         help="Specify the output format of the plots, which are in addition to the html files",
-        default="png",
-        type=str,
+        default=["png"],
+        nargs="*",
         choices=["png", "jpg", "jpeg", "webp", "svg", "pdf", "eps", "json"],
     )
     visual.add_argument(
@@ -245,9 +230,7 @@ def get_args():
         type=int,
         default=100,
     )
-    target = parser.add_argument_group(
-        title="Input data sources, one of these is required."
-    )
+    target = parser.add_argument_group(title="Input data sources, one of these is required.")
     mtarget = target.add_mutually_exclusive_group(required=True)
     mtarget.add_argument(
         "--fasta",
@@ -275,9 +258,7 @@ def get_args():
         nargs="+",
         metavar="files",
     )
-    mtarget.add_argument(
-        "--bam", help="Data is in sorted bam files.", nargs="+", metavar="files"
-    )
+    mtarget.add_argument("--bam", help="Data is in sorted bam files.", nargs="+", metavar="files")
     mtarget.add_argument(
         "--ubam",
         help="Data is in one or more unmapped bam file(s).",
@@ -316,17 +297,13 @@ def get_args():
     ]
     if args.names:
         if not len(args.names) == [len(i) for i in sources if i][0]:
-            sys.exit(
-                "ERROR: Number of names (-n) should be same as number of files specified!"
-            )
+            sys.exit("ERROR: Number of names (-n) should be same as number of files specified!")
         if len(args.names) != len(set(args.names)):
             sys.stderr.write("\nWarning: duplicate values in -n/--names detected. ")
             sys.stderr.write("Datasets with the same name will be merged.\n\n")
     if args.colors:
         if not len(args.colors) == [len(i) for i in sources if i][0]:
-            sys.exit(
-                "ERROR: Number of colors (-c) should be same as number of files specified!"
-            )
+            sys.exit("ERROR: Number of colors (-c) should be same as number of files specified!")
     settings = vars(args)
     settings["path"] = os.path.join(args.outdir, args.prefix)
     return settings, args
