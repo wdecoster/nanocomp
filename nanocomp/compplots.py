@@ -146,7 +146,7 @@ def output_barplot(df, path, settings, title=None):
         ylabel = "Total bases sequenced"
 
     throughput_bases.fig = go.Figure()
-    for idx, sum_dataset in zip(idx, throughput.index):
+    for idx, sum_dataset in zip(throughput.index, throughput):
         throughput_bases.fig.add_trace(go.Bar(x=[idx], y=[sum_dataset], name=idx))
 
     throughput_bases.fig.update_layout(
