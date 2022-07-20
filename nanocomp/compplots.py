@@ -116,19 +116,15 @@ def process_violin_and_box(fig, log, plot_obj, title, y_name, ymax, settings):
 
 def output_barplot(df, path, settings, title=None):
     """Create barplots based on number of reads and total sum of nucleotides sequenced."""
-    logging.info(
-        "NanoComp: Creating barplots for number of reads and total throughput."
-    )
+    logging.info("NanoComp: Creating barplots for number of reads and total throughput.")
     read_count = Plot(
         path=path + "NanoComp_number_of_reads.html", title="Comparing number of reads"
     )
 
+    counts = df["dataset"].value_counts(sort=False)
+
     read_count.fig = go.Figure()
-
-    counts = df["dataset"].value_counts(sort=False).sort_index()
-    idx = counts.index
-
-    for idx, count in zip(idx, counts):
+    for idx, count in zip(counts.index, counts):
         read_count.fig.add_trace(go.Bar(x=[idx], y=[count], name=idx))
 
     read_count.fig.update_layout(
@@ -151,10 +147,8 @@ def output_barplot(df, path, settings, title=None):
         throughput = df.groupby("dataset")["lengths"].sum()
         ylabel = "Total bases sequenced"
 
-    idx = df["dataset"].unique()
-
     throughput_bases.fig = go.Figure()
-    for idx, sum_dataset in zip(idx, throughput):
+    for idx, sum_dataset in zip(idx, throughput.index):
         throughput_bases.fig.add_trace(go.Bar(x=[idx], y=[sum_dataset], name=idx))
 
     throughput_bases.fig.update_layout(
@@ -163,9 +157,7 @@ def output_barplot(df, path, settings, title=None):
         yaxis_title=ylabel,
     )
 
-    throughput_bases.html = throughput_bases.fig.to_html(
-        full_html=False, include_plotlyjs="cdn"
-    )
+    throughput_bases.html = throughput_bases.fig.to_html(full_html=False, include_plotlyjs="cdn")
     throughput_bases.save(settings)
 
     return read_count, throughput_bases
