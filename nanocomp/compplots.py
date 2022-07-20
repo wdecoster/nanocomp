@@ -8,9 +8,7 @@ import plotly.graph_objs as go
 import sys
 
 
-def violin_or_box_plot(
-    df, y, path, y_name, settings, title=None, plot="violin", log=False
-):
+def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin", log=False):
     """Create a violin/boxplot/ridge from the received DataFrame.
 
     The x-axis should be divided based on the 'dataset' column,
@@ -94,7 +92,7 @@ def violin_or_box_plot(
 
 def process_violin_and_box(fig, log, plot_obj, title, y_name, ymax, settings):
     if log:
-        ticks = [10 ** i for i in range(10) if not 10 ** i > 10 * (10 ** ymax)]
+        ticks = [10**i for i in range(10) if not 10**i > 10 * (10**ymax)]
         fig.update_layout(
             yaxis=dict(
                 tickmode="array",
@@ -177,8 +175,7 @@ def n50_barplot(df, path, settings, title=None):
         ylabel = "Total gigabase aligned"
     else:
         n50s = [
-            get_N50(np.sort(df.loc[df["dataset"] == d, "lengths"]))
-            for d in df["dataset"].unique()
+            get_N50(np.sort(df.loc[df["dataset"] == d, "lengths"])) for d in df["dataset"].unique()
         ]
         ylabel = "Sequenced read length N50"
 
@@ -252,9 +249,7 @@ def compare_cumulative_yields(df, path, settings, palette=None, title=None):
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
-    logging.info(
-        "NanoComp: Creating cumulative yield plots using {} reads.".format(len(dfs))
-    )
+    logging.info("NanoComp: Creating cumulative yield plots using {} reads.".format(len(dfs)))
     cum_yield_gb = Plot(
         path=path + "NanoComp_CumulativeYieldPlot_Gigabases.html",
         title="Cumulative yield",
@@ -262,10 +257,7 @@ def compare_cumulative_yields(df, path, settings, palette=None, title=None):
     data = []
     annotations = []
     for sample, color in zip(df["dataset"].unique(), palette):
-        cumsum = (
-            dfs.loc[dfs["dataset"] == sample, "lengths"].cumsum().resample("10T").max()
-            / 1e9
-        )
+        cumsum = dfs.loc[dfs["dataset"] == sample, "lengths"].cumsum().resample("10T").max() / 1e9
         data.append(
             go.Scatter(
                 x=cumsum.index.total_seconds() / 3600,
@@ -299,9 +291,7 @@ def compare_cumulative_yields(df, path, settings, palette=None, title=None):
             ),
         }
     )
-    cum_yield_gb.html = cum_yield_gb.fig.to_html(
-        full_html=False, include_plotlyjs="cdn"
-    )
+    cum_yield_gb.html = cum_yield_gb.fig.to_html(full_html=False, include_plotlyjs="cdn")
     cum_yield_gb.save(settings)
     return [cum_yield_gb]
 
@@ -316,12 +306,8 @@ def overlay_histogram(df, path, settings, palette=None):
     if palette is None:
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
 
-    hist = Plot(
-        path=path + "NanoComp_OverlayHistogram.html", title="Histogram of read lengths"
-    )
-    hist.html, hist.fig = plot_overlay_histogram(
-        df, palette, column="lengths", title=hist.title
-    )
+    hist = Plot(path=path + "NanoComp_OverlayHistogram.html", title="Histogram of read lengths")
+    hist.html, hist.fig = plot_overlay_histogram(df, palette, column="lengths", title=hist.title)
     hist.save(settings)
 
     hist_norm = Plot(
@@ -400,9 +386,7 @@ def plot_overlay_histogram(df, palette, column, title, bins=None, density=False)
         bins = max(round(int(np.amax(df.loc[:, column])) / 500), 10)
 
     for d, c in zip(df["dataset"].unique(), palette):
-        counts, bins = np.histogram(
-            df.loc[df["dataset"] == d, column], bins=bins, density=density
-        )
+        counts, bins = np.histogram(df.loc[df["dataset"] == d, column], bins=bins, density=density)
         data.append(
             go.Bar(
                 x=bins[1:],
@@ -416,13 +400,9 @@ def plot_overlay_histogram(df, palette, column, title, bins=None, density=False)
             )
         )
 
-    fig = go.Figure(
-        {"data": data, "layout": go.Layout(barmode="overlay", title=title, bargap=0)}
-    )
+    fig = go.Figure({"data": data, "layout": go.Layout(barmode="overlay", title=title, bargap=0)})
 
-    fig.update_layout(
-        title_x=0.5, yaxis_title="Density" if density else "Number of reads"
-    )
+    fig.update_layout(title_x=0.5, yaxis_title="Density" if density else "Number of reads")
 
     return fig.to_html(full_html=False, include_plotlyjs="cdn"), fig
 
@@ -444,15 +424,13 @@ def plot_log_histogram(df, palette, title, density=False):
                 y=counts,
                 opacity=0.4,
                 name=d,
-                text=[10 ** i for i in bins[1:]],
+                text=[10**i for i in bins[1:]],
                 hoverinfo="text",
                 hovertemplate=None,
                 marker=dict(color=c),
             )
         )
-    xtickvals = [
-        10 ** i for i in range(10) if not 10 ** i > 10 * np.amax(df["lengths"])
-    ]
+    xtickvals = [10**i for i in range(10) if not 10**i > 10 * np.amax(df["lengths"])]
 
     fig = go.Figure(
         {
@@ -466,9 +444,7 @@ def plot_log_histogram(df, palette, title, density=False):
         }
     )
 
-    fig.update_layout(
-        title_x=0.5, yaxis_title="Density" if density else "Number of reads"
-    )
+    fig.update_layout(title_x=0.5, yaxis_title="Density" if density else "Number of reads")
 
     return fig.to_html(full_html=False, include_plotlyjs="cdn"), fig
 
@@ -478,17 +454,13 @@ def active_pores_over_time(df, path, settings, palette=None, title=None):
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
-    logging.info(
-        "NanoComp: Creating active pores plot using {} reads.".format(len(dfs))
-    )
+    logging.info("NanoComp: Creating active pores plot using {} reads.".format(len(dfs)))
     active_pores = Plot(
         path=path + "NanoComp_ActivePoresOverTime.html", title="Active pores over time"
     )
     data = []
     for sample, color in zip(df["dataset"].unique(), palette):
-        pores = (
-            dfs.loc[dfs["dataset"] == sample, "channelIDs"].resample("10T").nunique()
-        )
+        pores = dfs.loc[dfs["dataset"] == sample, "channelIDs"].resample("10T").nunique()
         data.append(
             go.Scatter(
                 x=pores.index.total_seconds() / 3600,
@@ -513,9 +485,7 @@ def active_pores_over_time(df, path, settings, palette=None, title=None):
 
     active_pores.fig.update_layout(title_x=0.5)
 
-    active_pores.html = active_pores.fig.to_html(
-        full_html=False, include_plotlyjs="cdn"
-    )
+    active_pores.html = active_pores.fig.to_html(full_html=False, include_plotlyjs="cdn")
     active_pores.save(settings)
 
     return active_pores
