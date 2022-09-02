@@ -472,6 +472,7 @@ def active_pores_over_time(df, path, settings, palette=None, title=None):
     )
 
     active_pores.fig.update_layout(title_x=0.5)
+    active_pores.fig.update_yaxes(rangemode="tozero")
 
     active_pores.html = active_pores.fig.to_html(full_html=False, include_plotlyjs="cdn")
     active_pores.save(settings)
