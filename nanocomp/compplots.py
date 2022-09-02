@@ -45,7 +45,7 @@ def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin",
         )
 
     elif plot == "box":
-        logging.info("NanoComp: Creating box plot for {}.".format(y))
+        logging.info("NanoComp: Creating box plot for {y}.")
 
         fig = go.Figure()
 
@@ -69,7 +69,7 @@ def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin",
         )
 
     elif plot == "ridge":
-        logging.info("NanoComp: Creating ridges plot for {}.".format(y))
+        logging.info("NanoComp: Creating ridges plot for {y}.")
 
         fig = go.Figure()
 
@@ -139,10 +139,10 @@ def output_barplot(df, path, settings, title=None):
         title="Comparing throughput in bases",
     )
     if "aligned_lengths" in df:
-        throughput = df.groupby("dataset")["aligned_lengths"].sum()
+        throughput = df.groupby("dataset", sort=False)["aligned_lengths"].sum()
         ylabel = "Total bases aligned"
     else:
-        throughput = df.groupby("dataset")["lengths"].sum()
+        throughput = df.groupby("dataset", sort=False)["lengths"].sum()
         ylabel = "Total bases sequenced"
 
     throughput_bases.fig = go.Figure()
@@ -167,23 +167,14 @@ def n50_barplot(df, path, settings, title=None):
     containing bar chart of total gb aligned/sequenced read length n50
     """
     n50_bar = Plot(path=path + "NanoComp_N50.html", title="Comparing read length N50")
-    if "aligned_lengths" in df:
-        n50s = [
-            get_N50(np.sort(df.loc[df["dataset"] == d, "aligned_lengths"]))
-            for d in df["dataset"].unique()
-        ]
-        ylabel = "Total gigabase aligned"
-    else:
-        n50s = [
-            get_N50(np.sort(df.loc[df["dataset"] == d, "lengths"])) for d in df["dataset"].unique()
-        ]
-        ylabel = "Sequenced read length N50"
+    datasets = df["dataset"].unique()
+    length_column = "aligned_lengths" if "aligned_lengths" in df else "lengths"
+    ylabel = "Aligned read length N50" if "aligned_lengths" in df else "Sequenced read length N50"
 
-    idx = df["dataset"].unique()
-
+    n50s = [get_N50(np.sort(df.loc[df["dataset"] == d, length_column])) for d in datasets]
     n50_bar.fig = go.Figure()
 
-    for idx, n50 in zip(idx, n50s):
+    for idx, n50 in zip(datasets, n50s):
         n50_bar.fig.add_trace(go.Bar(x=[idx], y=[n50], name=idx))
 
     n50_bar.fig.update_layout(
@@ -249,7 +240,7 @@ def compare_cumulative_yields(df, path, settings, palette=None, title=None):
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
-    logging.info("NanoComp: Creating cumulative yield plots using {} reads.".format(len(dfs)))
+    logging.info("NanoComp: Creating cumulative yield plots using {len(dfs)} reads.")
     cum_yield_gb = Plot(
         path=path + "NanoComp_CumulativeYieldPlot_Gigabases.html",
         title="Cumulative yield",
@@ -454,7 +445,7 @@ def active_pores_over_time(df, path, settings, palette=None, title=None):
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
-    logging.info("NanoComp: Creating active pores plot using {} reads.".format(len(dfs)))
+    logging.info("NanoComp: Creating active pores plot using {len(dfs)} reads.")
     active_pores = Plot(
         path=path + "NanoComp_ActivePoresOverTime.html", title="Active pores over time"
     )
