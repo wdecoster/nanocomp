@@ -45,7 +45,7 @@ def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin",
         )
 
     elif plot == "box":
-        logging.info("NanoComp: Creating box plot for {y}.")
+        logging.info(f"NanoComp: Creating box plot for {y}.")
 
         fig = go.Figure()
 
@@ -69,7 +69,7 @@ def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin",
         )
 
     elif plot == "ridge":
-        logging.info("NanoComp: Creating ridges plot for {y}.")
+        logging.info(f"NanoComp: Creating ridges plot for {y}.")
 
         fig = go.Figure()
 
@@ -138,13 +138,10 @@ def output_barplot(df, path, settings, title=None):
         path=path + "NanoComp_total_throughput.html",
         title="Comparing throughput in bases",
     )
-    if "aligned_lengths" in df:
-        throughput = df.groupby("dataset", sort=False)["aligned_lengths"].sum()
-        ylabel = "Total bases aligned"
-    else:
-        throughput = df.groupby("dataset", sort=False)["lengths"].sum()
-        ylabel = "Total bases sequenced"
+    length_column = "aligned_lengths" if "aligned_lengths" in df else "lengths"
+    ylabel = "Total bases aligned" if "aligned_lengths" in df else "Total bases sequenced"
 
+    throughput = df.groupby("dataset", sort=False)[length_column].sum()
     throughput_bases.fig = go.Figure()
     for idx, sum_dataset in zip(throughput.index, throughput):
         throughput_bases.fig.add_trace(go.Bar(x=[idx], y=[sum_dataset], name=idx))
@@ -240,7 +237,7 @@ def compare_cumulative_yields(df, path, settings, palette=None, title=None):
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
-    logging.info("NanoComp: Creating cumulative yield plots using {len(dfs)} reads.")
+    logging.info(f"NanoComp: Creating cumulative yield plots using {len(dfs)} reads.")
     cum_yield_gb = Plot(
         path=path + "NanoComp_CumulativeYieldPlot_Gigabases.html",
         title="Cumulative yield",
@@ -265,7 +262,7 @@ def compare_cumulative_yields(df, path, settings, palette=None, title=None):
                 y=cumsum[-1],
                 xanchor="left",
                 yanchor="middle",
-                text="{}Gb".format(round(cumsum[-1])),
+                text=f"{round(cumsum[-1], ndigits=2)}Gb",
                 showarrow=False,
             )
         )
@@ -445,7 +442,7 @@ def active_pores_over_time(df, path, settings, palette=None, title=None):
         palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
-    logging.info("NanoComp: Creating active pores plot using {len(dfs)} reads.")
+    logging.info(f"NanoComp: Creating active pores plot using {len(dfs)} reads.")
     active_pores = Plot(
         path=path + "NanoComp_ActivePoresOverTime.html", title="Active pores over time"
     )
