@@ -381,8 +381,7 @@ def plot_overlay_histogram(df, palette, column, title, bins=None, density=False)
                 y=counts,
                 opacity=0.4,
                 name=d,
-                text=bins[1:],
-                hoverinfo="text",
+                hovertext=bins[1:],
                 hovertemplate=None,
                 marker=dict(color=c),
             )
@@ -412,8 +411,7 @@ def plot_log_histogram(df, palette, title, density=False):
                 y=counts,
                 opacity=0.4,
                 name=d,
-                text=[10**i for i in bins[1:]],
-                hoverinfo="text",
+                hovertext=[10**i for i in bins[1:]],
                 hovertemplate=None,
                 marker=dict(color=c),
             )
