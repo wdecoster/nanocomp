@@ -47,7 +47,7 @@ def main():
                 [read_feather(p) for p in args.feather],
                 names=args.names or args.feather,
                 method="track",
-            )
+            ).rename(columns={"identities": "percentIdentity"})
         else:
             datadf = nanoget.get_input(
                 source=[n for n, s in sources.items() if s][0],
@@ -67,9 +67,7 @@ def main():
                 compression="gzip",
             )
         if args.store:
-            pickle.dump(
-                obj=datadf, file=open(settings["path"] + "NanoComp-data.pickle", "wb")
-            )
+            pickle.dump(obj=datadf, file=open(settings["path"] + "NanoComp-data.pickle", "wb"))
         if args.split_runs:
             utils.change_identifiers(datadf, split_dict)
         if args.barcoded:
@@ -152,10 +150,7 @@ def make_plots(df, settings):
     if "percentIdentity" in df:
         plots.extend(
             compplots.violin_or_box_plot(
-                df=sub_df[
-                    sub_df["percentIdentity"]
-                    > np.percentile(sub_df["percentIdentity"], 1)
-                ],
+                df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
                 y="percentIdentity",
                 path=settings["path"],
                 y_name="Percent reference identity",
@@ -166,10 +161,7 @@ def make_plots(df, settings):
         )
         plots.append(
             compplots.overlay_histogram_identity(
-                df=sub_df[
-                    sub_df["percentIdentity"]
-                    > np.percentile(sub_df["percentIdentity"], 1)
-                ],
+                df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
                 path=settings["path"],
                 palette=settings["colors"],
                 settings=settings,
@@ -178,10 +170,7 @@ def make_plots(df, settings):
 
         plots.append(
             compplots.overlay_histogram_phred(
-                df=sub_df[
-                    sub_df["percentIdentity"]
-                    > np.percentile(sub_df["percentIdentity"], 1)
-                ],
+                df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
                 path=settings["path"],
                 palette=settings["colors"],
                 settings=settings,
@@ -405,18 +394,11 @@ li {
         </head>"""
 
     html_content = []
-    html_content.append(
-        '<body><nav><ul><li><a href="#stats">Summary Statistics</a></li>'
-    )
-    html_content.append(
-        '<li class="submenu"><a href="#plots" class="submenubtn">Plots</a>'
-    )
+    html_content.append('<body><nav><ul><li><a href="#stats">Summary Statistics</a></li>')
+    html_content.append('<li class="submenu"><a href="#plots" class="submenubtn">Plots</a>')
     html_content.append('<ul class="submenu-items">')
     html_content.extend(
-        [
-            '<li><a href="#' + p.title.replace(" ", "_") + '">' + p.title + "</a></li>"
-            for p in plots
-        ]
+        ['<li><a href="#' + p.title.replace(" ", "_") + '">' + p.title + "</a></li>" for p in plots]
     )
     html_content.append("</ul>")
     html_content.append("</li>")
@@ -425,9 +407,7 @@ li {
     )
     html_content.append("</ul></nav>")
     html_content.append("<h1>NanoComp report</h1>")
-    html_content.append(
-        "<h2 id='stats'>Summary statistics</h2><div class='tablewrapper'>"
-    )
+    html_content.append("<h2 id='stats'>Summary statistics</h2><div class='tablewrapper'>")
     if stats_df is not None:
         html_content.append(stats_df.to_html())
     else:
