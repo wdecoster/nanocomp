@@ -18,17 +18,19 @@ def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin",
         path=f"{path}NanoComp_{y.replace(' ', '_')}_{plot}.html",
         title=f"Comparing {y_name.lower()}",
     )
+    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
 
     if plot == "violin":
         logging.info(f"NanoComp: Creating violin plot for {y}.")
 
         fig = go.Figure()
 
-        for dataset in df["dataset"].unique():
+        for dataset, color in zip(df["dataset"].unique(), palette):
             fig.add_trace(
                 go.Violin(
                     x=df["dataset"][df["dataset"] == dataset],
                     y=df[y][df["dataset"] == dataset],
+                    marker_color=color,
                     points=False,
                     name=dataset,
                 )
@@ -49,11 +51,12 @@ def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin",
 
         fig = go.Figure()
 
-        for dataset in df["dataset"].unique():
+        for dataset, color in zip(df["dataset"].unique(), palette):
             fig.add_trace(
                 go.Box(
                     x=df["dataset"][df["dataset"] == dataset],
                     y=df[y][df["dataset"] == dataset],
+                    marker_color=color,
                     name=dataset,
                 )
             )
@@ -73,8 +76,8 @@ def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin",
 
         fig = go.Figure()
 
-        for d in df["dataset"].unique():
-            fig.add_trace(go.Violin(x=df[y][df["dataset"] == d], name=d))
+        for d, color in zip(df["dataset"].unique(), palette):
+            fig.add_trace(go.Violin(x=df[y][df["dataset"] == d], name=d, marker_color=color))
 
         fig.update_traces(orientation="h", side="positive", width=3, points=False)
         fig.update_layout(title=title or comp.title, title_x=0.5)
@@ -119,11 +122,13 @@ def output_barplot(df, path, settings, title=None):
         path=path + "NanoComp_number_of_reads.html", title="Comparing number of reads"
     )
 
+    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+
     counts = df["dataset"].value_counts(sort=False)
 
     read_count.fig = go.Figure()
-    for idx, count in zip(counts.index, counts):
-        read_count.fig.add_trace(go.Bar(x=[idx], y=[count], name=idx))
+    for idx, count, color in zip(counts.index, counts, palette):
+        read_count.fig.add_trace(go.Bar(x=[idx], y=[count], name=idx, marker_color=color))
 
     read_count.fig.update_layout(
         title_text=title or read_count.title,
@@ -143,8 +148,10 @@ def output_barplot(df, path, settings, title=None):
 
     throughput = df.groupby("dataset", sort=False)[length_column].sum()
     throughput_bases.fig = go.Figure()
-    for idx, sum_dataset in zip(throughput.index, throughput):
-        throughput_bases.fig.add_trace(go.Bar(x=[idx], y=[sum_dataset], name=idx))
+    for idx, sum_dataset, color in zip(throughput.index, throughput, palette):
+        throughput_bases.fig.add_trace(
+            go.Bar(x=[idx], y=[sum_dataset], name=idx, marker_color=color)
+        )
 
     throughput_bases.fig.update_layout(
         title=title or throughput_bases.title,
@@ -168,11 +175,13 @@ def n50_barplot(df, path, settings, title=None):
     length_column = "aligned_lengths" if "aligned_lengths" in df else "lengths"
     ylabel = "Aligned read length N50" if "aligned_lengths" in df else "Sequenced read length N50"
 
+    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+
     n50s = [get_N50(np.sort(df.loc[df["dataset"] == d, length_column])) for d in datasets]
     n50_bar.fig = go.Figure()
 
-    for idx, n50 in zip(datasets, n50s):
-        n50_bar.fig.add_trace(go.Bar(x=[idx], y=[n50], name=idx))
+    for idx, n50, color in zip(datasets, n50s, palette):
+        n50_bar.fig.add_trace(go.Bar(x=[idx], y=[n50], name=idx, marker_color=color))
 
     n50_bar.fig.update_layout(
         title=title or n50_bar.title,
@@ -195,7 +204,7 @@ def compare_sequencing_speed(df, path, settings, title=None):
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
     dfs = dfs.loc[dfs["duration"] > 0]
 
-    palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
 
     data = []
     for sample, color in zip(df["dataset"].unique(), palette):
@@ -232,9 +241,8 @@ def compare_sequencing_speed(df, path, settings, title=None):
     return [seq_speed]
 
 
-def compare_cumulative_yields(df, path, settings, palette=None, title=None):
-    if palette is None:
-        palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+def compare_cumulative_yields(df, path, settings, title=None):
+    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
     logging.info(f"NanoComp: Creating cumulative yield plots using {len(dfs)} reads.")
@@ -284,15 +292,14 @@ def compare_cumulative_yields(df, path, settings, palette=None, title=None):
     return [cum_yield_gb]
 
 
-def overlay_histogram(df, path, settings, palette=None):
+def overlay_histogram(df, path, settings):
     """
     Use plotly to create an overlay of length histograms
     Return html code, but also save as figure (format specified)
 
     Only has 10 colors, which get recycled up to 5 times.
     """
-    if palette is None:
-        palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
 
     hist = Plot(path=path + "NanoComp_OverlayHistogram.html", title="Histogram of read lengths")
     hist.html, hist.fig = plot_overlay_histogram(df, palette, column="lengths", title=hist.title)
@@ -326,9 +333,9 @@ def overlay_histogram(df, path, settings, palette=None):
     return [hist, hist_norm, log_hist, log_hist_norm]
 
 
-def overlay_histogram_identity(df, path, settings, palette=None):
-    if palette is None:
-        palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+def overlay_histogram_identity(df, path, settings):
+    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+
     hist_pid = Plot(
         path=path + "NanoComp_OverlayHistogram_Identity.html",
         title="Histogram of percent reference identity",
@@ -341,7 +348,7 @@ def overlay_histogram_identity(df, path, settings, palette=None):
     return hist_pid
 
 
-def overlay_histogram_phred(df, path, settings, palette=None):
+def overlay_histogram_phred(df, path, settings):
     """
     Reads with a perfect alignment and thus a percentIdentity of 100
     get a phred score of Inf
@@ -351,8 +358,7 @@ def overlay_histogram_phred(df, path, settings, palette=None):
     df["phredIdentity"] = -10 * np.log10(1 - (df["percentIdentity"] / 100))
     df["phredIdentity"][np.isinf(df["phredIdentity"])] = 60
 
-    if palette is None:
-        palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
 
     hist_phred = Plot(
         path=path + "NanoComp_OverlayHistogram_PhredScore.html",
@@ -435,9 +441,9 @@ def plot_log_histogram(df, palette, title, density=False):
     return fig.to_html(full_html=False, include_plotlyjs="cdn"), fig
 
 
-def active_pores_over_time(df, path, settings, palette=None, title=None):
-    if palette is None:
-        palette = plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+def active_pores_over_time(df, path, settings, title=None):
+    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
     logging.info(f"NanoComp: Creating active pores plot using {len(dfs)} reads.")

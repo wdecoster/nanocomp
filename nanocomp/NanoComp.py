@@ -163,7 +163,6 @@ def make_plots(df, settings):
             compplots.overlay_histogram_identity(
                 df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
                 path=settings["path"],
-                palette=settings["colors"],
                 settings=settings,
             )
         )
@@ -172,7 +171,6 @@ def make_plots(df, settings):
             compplots.overlay_histogram_phred(
                 df=sub_df[sub_df["percentIdentity"] > np.percentile(sub_df["percentIdentity"], 1)],
                 path=settings["path"],
-                palette=settings["colors"],
                 settings=settings,
             )
         )
@@ -183,7 +181,6 @@ def make_plots(df, settings):
                 df=df,
                 path=settings["path"],
                 title=settings["title"],
-                palette=settings["colors"],
                 settings=settings,
             )
         )
@@ -192,7 +189,6 @@ def make_plots(df, settings):
             compplots.active_pores_over_time(
                 df=df,
                 path=settings["path"],
-                palette=settings["colors"],
                 title=settings["title"],
                 settings=settings,
             )
@@ -201,7 +197,6 @@ def make_plots(df, settings):
         compplots.overlay_histogram(
             df=sub_df,
             path=settings["path"],
-            palette=settings["colors"],
             settings=settings,
         )
     )
