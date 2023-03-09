@@ -279,6 +279,7 @@ def get_args():
     )
     mtarget.add_argument(
         "--feather",
+        "--arrow",
         help="Data is in one or more feather file(s).",
         nargs="+",
         metavar="file",
