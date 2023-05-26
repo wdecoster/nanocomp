@@ -72,6 +72,7 @@ def main():
             utils.change_identifiers(datadf, split_dict)
         if args.barcoded:
             datadf["dataset"] = datadf["barcode"]
+            datadf = datadf.sort_values(by=["dataset"])
         identifiers = list(datadf["dataset"].unique())
         stats_df = write_stats(
             datadfs=[datadf[datadf["dataset"] == i] for i in identifiers],
