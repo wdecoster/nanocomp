@@ -314,6 +314,15 @@ def overlay_histogram(df, path, settings):
     )
     hist_norm.save(settings)
 
+    hist_weighted = Plot(
+        path=path + "NanoComp_OverlayHistogram_Weighted.html",
+        title="Weighted histogram of read lengths",
+    )
+    hist_weighted.html, hist_weighted.fig = plot_overlay_histogram(
+        df, palette, column="lengths", title=hist_weighted.title, weights_column="lengths"
+    )
+    hist_weighted.save(settings)
+
     log_hist = Plot(
         path=path + "NanoComp_OverlayLogHistogram.html",
         title="Histogram of log transformed read lengths",
@@ -330,7 +339,16 @@ def overlay_histogram(df, path, settings):
     )
     log_hist_norm.save(settings)
 
-    return [hist, hist_norm, log_hist, log_hist_norm]
+    log_hist_weighted = Plot(
+        path=path + "NanoComp_OverlayLogHistogram_Weighted.html",
+        title="Weighted histogram of log transformed read lengths",
+    )
+    log_hist_weighted.html, log_hist_weighted.fig = plot_log_histogram(
+        df, palette, title=log_hist_weighted.title, weights_column="lengths"
+    )
+    log_hist_weighted.save(settings)
+
+    return [hist, hist_norm, hist_weighted, log_hist, log_hist_norm, log_hist_weighted]
 
 
 def overlay_histogram_identity(df, path, settings):
@@ -374,13 +392,20 @@ def overlay_histogram_phred(df, path, settings):
     return hist_phred
 
 
-def plot_overlay_histogram(df, palette, column, title, bins=None, density=False):
+def plot_overlay_histogram(
+    df, palette, column, title, bins=None, density=False, weights_column=None
+):
     data = []
     if not bins:
         bins = max(round(int(np.amax(df.loc[:, column])) / 500), 10)
 
     for d, c in zip(df["dataset"].unique(), palette):
-        counts, bins = np.histogram(df.loc[df["dataset"] == d, column], bins=bins, density=density)
+        counts, bins = np.histogram(
+            df.loc[df["dataset"] == d, column],
+            bins=bins,
+            density=density,
+            weights=df.loc[df["dataset"] == d, weights_column] if weights_column else None,
+        )
         data.append(
             go.Bar(
                 x=bins[1:],
@@ -394,13 +419,18 @@ def plot_overlay_histogram(df, palette, column, title, bins=None, density=False)
         )
 
     fig = go.Figure({"data": data, "layout": go.Layout(barmode="overlay", title=title, bargap=0)})
-
-    fig.update_layout(title_x=0.5, yaxis_title="Density" if density else "Number of reads")
+    if density:
+        yaxis_title = "Density"
+    elif weights_column:
+        yaxis_title = "Number of bases"
+    else:
+        yaxis_title = "Number of reads"
+    fig.update_layout(title_x=0.5, yaxis_title=yaxis_title)
 
     return fig.to_html(full_html=False, include_plotlyjs="cdn"), fig
 
 
-def plot_log_histogram(df, palette, title, density=False):
+def plot_log_histogram(df, palette, title, density=False, weights_column=None):
     """
     Plot overlaying histograms with log transformation of length
     Return both html and figure
@@ -409,7 +439,10 @@ def plot_log_histogram(df, palette, title, density=False):
     bins = max(round(int(np.amax(df.loc[:, "lengths"])) / 500), 10)
     for d, c in zip(df["dataset"].unique(), palette):
         counts, bins = np.histogram(
-            np.log10(df.loc[df["dataset"] == d, "lengths"]), bins=bins, density=density
+            np.log10(df.loc[df["dataset"] == d, "lengths"]),
+            bins=bins,
+            density=density,
+            weights=df.loc[df["dataset"] == d, weights_column] if weights_column else None,
         )
         data.append(
             go.Bar(
@@ -435,8 +468,13 @@ def plot_log_histogram(df, palette, title, density=False):
             ),
         }
     )
-
-    fig.update_layout(title_x=0.5, yaxis_title="Density" if density else "Number of reads")
+    if density:
+        yaxis_title = "Density"
+    elif weights_column:
+        yaxis_title = "Number of bases"
+    else:
+        yaxis_title = "Number of reads"
+    fig.update_layout(title_x=0.5, yaxis_title=yaxis_title)
 
     return fig.to_html(full_html=False, include_plotlyjs="cdn"), fig
 

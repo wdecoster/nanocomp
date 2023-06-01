@@ -6,3 +6,4 @@ dist/
 tests/
 nanotest/
 .idea
+.vscode/sftp.json

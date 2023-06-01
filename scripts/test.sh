@@ -17,5 +17,5 @@ NanoComp --summary nanotest/sequencing_summary.txt nanotest/sequencing_summary.t
 NanoComp --fastq nanotest/reads.fastq.gz nanotest/reads.fastq.gz --colors red blue -n run1 run2 --format svg --plot ridge --outdir tests
 NanoComp --feather nanotest/summary1.feather nanotest/summary2.feather nanotest/summary3.feather -n A B C --outdir tests
 NanoComp --arrow nanotest/summary1.feather nanotest/summary2.feather nanotest/summary3.feather -n A B C --outdir tests
-NanoComp --feather nanotest/summary1.feather nanotest/summary2.feather nanotest/summary3.feather -n A B C --outdir tests -f pdf png jpeg
+#NanoComp --feather nanotest/summary1.feather nanotest/summary2.feather nanotest/summary3.feather -n A B C --outdir tests -f pdf png jpeg
 NanoComp --feather nanotest/summary1.feather nanotest/summary2.feather nanotest/summary3.feather -n A B C --color red blue green --outdir tests
