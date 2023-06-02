@@ -86,4 +86,6 @@ I welcome all suggestions, bug reports, feature requests and contributions. Plea
 
 
 ## CITATION
-If you use this tool, please consider citing our [publication](https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/bty149/4934939).
+
+If you use this tool, please consider citing our [publication](https://academic.oup.com/bioinformatics/article/39/5/btad311/7160911).
+
