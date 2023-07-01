@@ -6,6 +6,7 @@ import numpy as np
 import plotly
 import plotly.graph_objs as go
 import sys
+from itertools import cycle
 
 
 def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin", log=False):
@@ -18,7 +19,9 @@ def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin",
         path=f"{path}NanoComp_{y.replace(' ', '_')}_{plot}.html",
         title=f"Comparing {y_name.lower()}",
     )
-    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    palette = (
+        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+    )
 
     if plot == "violin":
         logging.info(f"NanoComp: Creating violin plot for {y}.")
@@ -122,7 +125,9 @@ def output_barplot(df, path, settings, title=None):
         path=path + "NanoComp_number_of_reads.html", title="Comparing number of reads"
     )
 
-    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    palette = (
+        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+    )
 
     counts = df["dataset"].value_counts(sort=False)
 
@@ -175,7 +180,9 @@ def n50_barplot(df, path, settings, title=None):
     length_column = "aligned_lengths" if "aligned_lengths" in df else "lengths"
     ylabel = "Aligned read length N50" if "aligned_lengths" in df else "Sequenced read length N50"
 
-    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    palette = (
+        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+    )
 
     n50s = [get_N50(np.sort(df.loc[df["dataset"] == d, length_column])) for d in datasets]
     n50_bar.fig = go.Figure()
@@ -204,7 +211,9 @@ def compare_sequencing_speed(df, path, settings, title=None):
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
     dfs = dfs.loc[dfs["duration"] > 0]
 
-    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    palette = (
+        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+    )
 
     data = []
     for sample, color in zip(df["dataset"].unique(), palette):
@@ -242,7 +251,9 @@ def compare_sequencing_speed(df, path, settings, title=None):
 
 
 def compare_cumulative_yields(df, path, settings, title=None):
-    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    palette = (
+        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+    )
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
     logging.info(f"NanoComp: Creating cumulative yield plots using {len(dfs)} reads.")
@@ -299,7 +310,9 @@ def overlay_histogram(df, path, settings):
 
     Only has 10 colors, which get recycled up to 5 times.
     """
-    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    palette = (
+        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+    )
 
     hist = Plot(path=path + "NanoComp_OverlayHistogram.html", title="Histogram of read lengths")
     hist.html, hist.fig = plot_overlay_histogram(df, palette, column="lengths", title=hist.title)
@@ -352,7 +365,9 @@ def overlay_histogram(df, path, settings):
 
 
 def overlay_histogram_identity(df, path, settings):
-    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    palette = (
+        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+    )
 
     hist_pid = Plot(
         path=path + "NanoComp_OverlayHistogram_Identity.html",
@@ -376,7 +391,9 @@ def overlay_histogram_phred(df, path, settings):
     df["phredIdentity"] = -10 * np.log10(1 - (df["percentIdentity"] / 100))
     df["phredIdentity"][np.isinf(df["phredIdentity"])] = 60
 
-    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    palette = (
+        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+    )
 
     hist_phred = Plot(
         path=path + "NanoComp_OverlayHistogram_PhredScore.html",
@@ -480,7 +497,9 @@ def plot_log_histogram(df, palette, title, density=False, weights_column=None):
 
 
 def active_pores_over_time(df, path, settings, title=None):
-    palette = settings["colors"] if settings["colors"] else plotly.colors.DEFAULT_PLOTLY_COLORS * 5
+    palette = (
+        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+    )
 
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
