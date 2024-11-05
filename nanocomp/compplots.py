@@ -222,7 +222,7 @@ def compare_sequencing_speed(df, path, settings, title=None):
                 dfs.loc[dfs["dataset"] == sample, "lengths"]
                 / dfs.loc[dfs["dataset"] == sample, "duration"]
             )
-            .resample("30T")
+            .resample("30min")
             .median()
         )
         data.append(
@@ -264,7 +264,7 @@ def compare_cumulative_yields(df, path, settings, title=None):
     data = []
     annotations = []
     for sample, color in zip(df["dataset"].unique(), palette):
-        cumsum = dfs.loc[dfs["dataset"] == sample, "lengths"].cumsum().resample("10T").max() / 1e9
+        cumsum = dfs.loc[dfs["dataset"] == sample, "lengths"].cumsum().resample("10min").max() / 1e9
         data.append(
             go.Scatter(
                 x=cumsum.index.total_seconds() / 3600,
@@ -278,10 +278,10 @@ def compare_cumulative_yields(df, path, settings, title=None):
             dict(
                 xref="paper",
                 x=0.99,
-                y=cumsum[-1],
+                y=cumsum.iloc[-1],
                 xanchor="left",
                 yanchor="middle",
-                text=f"{round(cumsum[-1], ndigits=2)}Gb",
+                text=f"{round(cumsum.iloc[-1], ndigits=2)}Gb",
                 showarrow=False,
             )
         )
@@ -509,7 +509,7 @@ def active_pores_over_time(df, path, settings, title=None):
     )
     data = []
     for sample, color in zip(df["dataset"].unique(), palette):
-        pores = dfs.loc[dfs["dataset"] == sample, "channelIDs"].resample("10T").nunique()
+        pores = dfs.loc[dfs["dataset"] == sample, "channelIDs"].resample("10min").nunique()
         data.append(
             go.Scatter(
                 x=pores.index.total_seconds() / 3600,

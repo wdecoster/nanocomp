@@ -19,3 +19,4 @@ NanoComp --feather nanotest/summary1.feather nanotest/summary2.feather nanotest/
 NanoComp --arrow nanotest/summary1.feather nanotest/summary2.feather nanotest/summary3.feather -n A B C --outdir tests
 #NanoComp --feather nanotest/summary1.feather nanotest/summary2.feather nanotest/summary3.feather -n A B C --outdir tests -f pdf png jpeg
 NanoComp --feather nanotest/summary1.feather nanotest/summary2.feather nanotest/summary3.feather -n A B C --color red blue green --outdir tests
+NanoComp --feather nanotest/summary1.feather nanotest/summary2.feather nanotest/summary3.feather --format json -n A B C --outdir tests
