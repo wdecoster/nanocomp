@@ -131,9 +131,12 @@ def output_barplot(df, path, settings, title=None):
 
     counts = df["dataset"].value_counts(sort=False)
 
+    colordict = {}
+
     read_count.fig = go.Figure()
     for idx, count, color in zip(counts.index, counts, palette):
         read_count.fig.add_trace(go.Bar(x=[idx], y=[count], name=idx, marker_color=color))
+        colordict[idx] = color
 
     read_count.fig.update_layout(
         title_text=title or read_count.title,
@@ -153,7 +156,8 @@ def output_barplot(df, path, settings, title=None):
 
     throughput = df.groupby("dataset", sort=False)[length_column].sum()
     throughput_bases.fig = go.Figure()
-    for idx, sum_dataset, color in zip(throughput.index, throughput, palette):
+    for idx, sum_dataset in zip(throughput.index, throughput):
+        color = colordict.get(idx, "blue")
         throughput_bases.fig.add_trace(
             go.Bar(x=[idx], y=[sum_dataset], name=idx, marker_color=color)
         )
