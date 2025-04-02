@@ -7,6 +7,8 @@ import numpy as np
 import logging
 from nanomath import write_stats
 from nanoplot.utils import subsample_datasets
+from itertools import cycle
+import plotly.colors
 
 
 def main():
@@ -93,6 +95,12 @@ def make_plots(df, settings):
     sub_df = subsample_datasets(df)
     df["log length"] = np.log10(df["lengths"])
     sub_df["log length"] = np.log10(sub_df["lengths"])
+    
+    # Create a consistent color dictionary for ALL plots upfront
+    datasets = df["dataset"].unique()
+    palette = settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+    settings["colordict"] = {dataset: color for dataset, color in zip(datasets, palette)}
+    
     plots = []
     plots.extend(
         compplots.output_barplot(

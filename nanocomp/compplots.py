@@ -19,16 +19,24 @@ def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin",
         path=f"{path}NanoComp_{y.replace(' ', '_')}_{plot}.html",
         title=f"Comparing {y_name.lower()}",
     )
-    palette = (
-        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
-    )
+    
+    # Use the centralized colordict or fall back to new palette if needed
+    colordict = settings.get("colordict", {})
+    if not colordict:
+        palette = settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
 
     if plot == "violin":
         logging.info(f"NanoComp: Creating violin plot for {y}.")
 
         fig = go.Figure()
 
-        for dataset, color in zip(df["dataset"].unique(), palette):
+        for dataset in df["dataset"].unique():
+            color = colordict.get(dataset)
+            if not color and "colors" in settings and settings["colors"]:
+                color = next(settings["colors"])
+            elif not color:
+                color = next(cycle(plotly.colors.DEFAULT_PLOTLY_COLORS))
+                
             fig.add_trace(
                 go.Violin(
                     x=df["dataset"][df["dataset"] == dataset],
@@ -54,7 +62,13 @@ def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin",
 
         fig = go.Figure()
 
-        for dataset, color in zip(df["dataset"].unique(), palette):
+        for dataset in df["dataset"].unique():
+            color = colordict.get(dataset)
+            if not color and "colors" in settings and settings["colors"]:
+                color = next(settings["colors"])
+            elif not color:
+                color = next(cycle(plotly.colors.DEFAULT_PLOTLY_COLORS))
+            
             fig.add_trace(
                 go.Box(
                     x=df["dataset"][df["dataset"] == dataset],
@@ -79,8 +93,14 @@ def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin",
 
         fig = go.Figure()
 
-        for d, color in zip(df["dataset"].unique(), palette):
-            fig.add_trace(go.Violin(x=df[y][df["dataset"] == d], name=d, marker_color=color))
+        for dataset in df["dataset"].unique():
+            color = colordict.get(dataset)
+            if not color and "colors" in settings and settings["colors"]:
+                color = next(settings["colors"])
+            elif not color:
+                color = next(cycle(plotly.colors.DEFAULT_PLOTLY_COLORS))
+            
+            fig.add_trace(go.Violin(x=df[y][df["dataset"] == dataset], name=dataset, marker_color=color))
 
         fig.update_traces(orientation="h", side="positive", width=3, points=False)
         fig.update_layout(title=title or comp.title, title_x=0.5)
@@ -125,18 +145,26 @@ def output_barplot(df, path, settings, title=None):
         path=path + "NanoComp_number_of_reads.html", title="Comparing number of reads"
     )
 
-    palette = (
-        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
-    )
+    # Use the centralized colordict from settings
+    colordict = settings.get("colordict", {})
+    
+    # Fall back to creating a new colordict if not provided
+    if not colordict:
+        palette = settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+        datasets = df["dataset"].unique()
+        colordict = {dataset: color for dataset, color in zip(datasets, palette)}
 
+    # Count reads per dataset
     counts = df["dataset"].value_counts(sort=False)
-
-    colordict = {}
+    
+    # Get unique datasets in a consistent order
+    datasets = df["dataset"].unique()
 
     read_count.fig = go.Figure()
-    for idx, count, color in zip(counts.index, counts, palette):
+    for idx in datasets:
+        count = counts.get(idx, 0)  # Get count for this dataset
+        color = colordict.get(idx)
         read_count.fig.add_trace(go.Bar(x=[idx], y=[count], name=idx, marker_color=color))
-        colordict[idx] = color
 
     read_count.fig.update_layout(
         title_text=title or read_count.title,
@@ -156,8 +184,11 @@ def output_barplot(df, path, settings, title=None):
 
     throughput = df.groupby("dataset", sort=False)[length_column].sum()
     throughput_bases.fig = go.Figure()
-    for idx, sum_dataset in zip(throughput.index, throughput):
-        color = colordict.get(idx, "blue")
+    
+    # Use the same dataset order and colors as the first plot
+    for idx in datasets:
+        sum_dataset = throughput.get(idx, 0)  # Get sum for this dataset
+        color = colordict[idx]
         throughput_bases.fig.add_trace(
             go.Bar(x=[idx], y=[sum_dataset], name=idx, marker_color=color)
         )
@@ -184,14 +215,18 @@ def n50_barplot(df, path, settings, title=None):
     length_column = "aligned_lengths" if "aligned_lengths" in df else "lengths"
     ylabel = "Aligned read length N50" if "aligned_lengths" in df else "Sequenced read length N50"
 
-    palette = (
-        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
-    )
+    # Use the centralized colordict from settings
+    colordict = settings.get("colordict", {})
+    # Fall back to creating a new colordict if not provided
+    if not colordict:
+        palette = settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+        colordict = {dataset: color for dataset, color in zip(datasets, palette)}
 
     n50s = [get_N50(np.sort(df.loc[df["dataset"] == d, length_column])) for d in datasets]
     n50_bar.fig = go.Figure()
 
-    for idx, n50, color in zip(datasets, n50s, palette):
+    for idx, n50 in zip(datasets, n50s):
+        color = colordict.get(idx)
         n50_bar.fig.add_trace(go.Bar(x=[idx], y=[n50], name=idx, marker_color=color))
 
     n50_bar.fig.update_layout(
@@ -215,12 +250,16 @@ def compare_sequencing_speed(df, path, settings, title=None):
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
     dfs = dfs.loc[dfs["duration"] > 0]
 
-    palette = (
-        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
-    )
+    # Use the centralized colordict from settings
+    colordict = settings.get("colordict", {})
+    # Fall back to creating a new colordict if not provided
+    if not colordict:
+        palette = settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+        colordict = {dataset: color for dataset, color in zip(df["dataset"].unique(), palette)}
 
     data = []
-    for sample, color in zip(df["dataset"].unique(), palette):
+    for sample in df["dataset"].unique():
+        color = colordict.get(sample)
         seqspeed = (
             (
                 dfs.loc[dfs["dataset"] == sample, "lengths"]
@@ -255,9 +294,13 @@ def compare_sequencing_speed(df, path, settings, title=None):
 
 
 def compare_cumulative_yields(df, path, settings, title=None):
-    palette = (
-        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
-    )
+    # Use the centralized colordict from settings
+    colordict = settings.get("colordict", {})
+    # Fall back to creating a new colordict if not provided
+    if not colordict:
+        palette = settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+        colordict = {dataset: color for dataset, color in zip(df["dataset"].unique(), palette)}
+        
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
     logging.info(f"NanoComp: Creating cumulative yield plots using {len(dfs)} reads.")
@@ -267,7 +310,8 @@ def compare_cumulative_yields(df, path, settings, title=None):
     )
     data = []
     annotations = []
-    for sample, color in zip(df["dataset"].unique(), palette):
+    for sample in df["dataset"].unique():
+        color = colordict.get(sample)
         cumsum = dfs.loc[dfs["dataset"] == sample, "lengths"].cumsum().resample("10min").max() / 1e9
         data.append(
             go.Scatter(
@@ -314,9 +358,12 @@ def overlay_histogram(df, path, settings):
 
     Only has 10 colors, which get recycled up to 5 times.
     """
-    palette = (
-        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
-    )
+    # Use the centralized colordict from settings or fall back to palette
+    colordict = settings.get("colordict", {})
+    if colordict:
+        palette = colordict
+    else:
+        palette = settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
 
     hist = Plot(path=path + "NanoComp_OverlayHistogram.html", title="Histogram of read lengths")
     hist.html, hist.fig = plot_overlay_histogram(df, palette, column="lengths", title=hist.title)
@@ -369,9 +416,12 @@ def overlay_histogram(df, path, settings):
 
 
 def overlay_histogram_identity(df, path, settings):
-    palette = (
-        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
-    )
+    # Use the centralized colordict from settings
+    colordict = settings.get("colordict", {})
+    if colordict:
+        palette = colordict
+    else:
+        palette = settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
 
     hist_pid = Plot(
         path=path + "NanoComp_OverlayHistogram_Identity.html",
@@ -392,12 +442,15 @@ def overlay_histogram_phred(df, path, settings):
     Which is not cool
     So these are set to 60, a very high phred score
     """
-    df["phredIdentity"] = -10 * np.log10(1 - (df["percentIdentity"] / 100))
-    df["phredIdentity"][np.isinf(df["phredIdentity"])] = 60
+    # Calculate phred scores and cap infinite values at 60
+    df["phredIdentity"] = np.minimum(-10 * np.log10(1 - (df["percentIdentity"] / 100)), 60)
 
-    palette = (
-        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
-    )
+    # Use the centralized colordict from settings
+    colordict = settings.get("colordict", {})
+    if colordict:
+        palette = colordict
+    else:
+        palette = settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
 
     hist_phred = Plot(
         path=path + "NanoComp_OverlayHistogram_PhredScore.html",
@@ -420,22 +473,32 @@ def plot_overlay_histogram(
     if not bins:
         bins = max(round(int(np.amax(df.loc[:, column])) / 500), 10)
 
-    for d, c in zip(df["dataset"].unique(), palette):
+    # Use the centralized colordict if it exists in settings and was passed via palette
+    colordict = {}
+    if isinstance(palette, dict):
+        colordict = palette
+        palette = cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+
+    for dataset in df["dataset"].unique():
+        color = colordict.get(dataset)
+        if not color:
+            color = next(palette)
+            
         counts, bins = np.histogram(
-            df.loc[df["dataset"] == d, column],
+            df.loc[df["dataset"] == dataset, column],
             bins=bins,
             density=density,
-            weights=df.loc[df["dataset"] == d, weights_column] if weights_column else None,
+            weights=df.loc[df["dataset"] == dataset, weights_column] if weights_column else None,
         )
         data.append(
             go.Bar(
                 x=bins[1:],
                 y=counts,
                 opacity=0.4,
-                name=d,
+                name=dataset,
                 hovertext=bins[1:],
                 hovertemplate=None,
-                marker=dict(color=c),
+                marker=dict(color=color),
             )
         )
 
@@ -458,24 +521,36 @@ def plot_log_histogram(df, palette, title, density=False, weights_column=None):
     """
     data = []
     bins = max(round(int(np.amax(df.loc[:, "lengths"])) / 500), 10)
-    for d, c in zip(df["dataset"].unique(), palette):
+    
+    # Use the centralized colordict if it exists in settings and was passed via palette
+    colordict = {}
+    if isinstance(palette, dict):
+        colordict = palette
+        palette = cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+        
+    for dataset in df["dataset"].unique():
+        color = colordict.get(dataset)
+        if not color:
+            color = next(palette)
+            
         counts, bins = np.histogram(
-            np.log10(df.loc[df["dataset"] == d, "lengths"]),
+            np.log10(df.loc[df["dataset"] == dataset, "lengths"]),
             bins=bins,
             density=density,
-            weights=df.loc[df["dataset"] == d, weights_column] if weights_column else None,
+            weights=df.loc[df["dataset"] == dataset, weights_column] if weights_column else None,
         )
         data.append(
             go.Bar(
                 x=bins[1:],
                 y=counts,
                 opacity=0.4,
-                name=d,
+                name=dataset,
                 hovertext=[10**i for i in bins[1:]],
                 hovertemplate=None,
-                marker=dict(color=c),
+                marker=dict(color=color),
             )
         )
+
     xtickvals = [10**i for i in range(10) if not 10**i > 10 * np.amax(df["lengths"])]
 
     fig = go.Figure(
@@ -501,9 +576,12 @@ def plot_log_histogram(df, palette, title, density=False, weights_column=None):
 
 
 def active_pores_over_time(df, path, settings, title=None):
-    palette = (
-        settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
-    )
+    # Use the centralized colordict from settings
+    colordict = settings.get("colordict", {})
+    # Fall back to creating a new colordict if not provided
+    if not colordict:
+        palette = settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
+        colordict = {dataset: color for dataset, color in zip(df["dataset"].unique(), palette)}
 
     dfs = check_valid_time_and_sort(df, "start_time").set_index("start_time")
 
@@ -512,7 +590,8 @@ def active_pores_over_time(df, path, settings, title=None):
         path=path + "NanoComp_ActivePoresOverTime.html", title="Active pores over time"
     )
     data = []
-    for sample, color in zip(df["dataset"].unique(), palette):
+    for sample in df["dataset"].unique():
+        color = colordict.get(sample)
         pores = dfs.loc[dfs["dataset"] == sample, "channelIDs"].resample("10min").nunique()
         data.append(
             go.Scatter(
