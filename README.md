@@ -10,6 +10,8 @@ As of version 1.1.0 NanoComp will also create a static png image for dynamic htm
 
 ### INSTALLATION
 `pip install NanoComp`  
+or  
+`conda install bioconda::nanocomp`
 
 This script is written for Python3.
 
