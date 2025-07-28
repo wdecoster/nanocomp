@@ -46,6 +46,9 @@ def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin",
                     name=dataset,
                 )
             )
+        
+        # Add this line to prevent violin plots extending beyond data points
+        fig.update_traces(spanmode="hard")
 
         process_violin_and_box(
             fig,
@@ -102,7 +105,9 @@ def violin_or_box_plot(df, y, path, y_name, settings, title=None, plot="violin",
             
             fig.add_trace(go.Violin(x=df[y][df["dataset"] == dataset], name=dataset, marker_color=color))
 
-        fig.update_traces(orientation="h", side="positive", width=3, points=False)
+        # Add this line to prevent violin plots extending beyond data points
+        fig.update_traces(spanmode="hard", orientation="h", side="positive", width=3, points=False)
+
         fig.update_layout(title=title or comp.title, title_x=0.5)
 
         comp.fig = fig
