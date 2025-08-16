@@ -20,7 +20,7 @@ def make_output_dir(path):
 
 def chunks(values, chunks):
     if values:
-        chunksize = int(len(values) / chunks)
+        chunksize = max(1, int(len(values) / chunks))
         return [" ".join(values[i : i + chunksize]) for i in range(0, len(values), chunksize)]
     else:
         return [" "] * chunks
