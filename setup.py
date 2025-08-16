@@ -9,7 +9,7 @@ here = path.abspath(path.dirname(__file__))
 exec(open("nanocomp/version.py").read())
 
 setup(
-    name="NanoComp",
+    name="nanocomp",
     version=__version__,  # noqa F821
     description="Comparing runs of Oxford Nanopore sequencing data and alignments",
     long_description=open(path.join(here, "README.md")).read(),
