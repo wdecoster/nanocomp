@@ -7,3 +7,9 @@ tests/
 nanotest/
 .idea
 .vscode/sftp.json
+nanocomp.egg-info/dependency_links.txt
+nanocomp.egg-info/entry_points.txt
+nanocomp.egg-info/PKG-INFO
+nanocomp.egg-info/requires.txt
+nanocomp.egg-info/SOURCES.txt
+nanocomp.egg-info/top_level.txt

@@ -1,10 +1,6 @@
 import logging
 import sys
 import os
-import pandas as pd
-import numpy as np
-from datetime import datetime as dt
-from time import time
 import textwrap as _textwrap
 from .version import __version__
 from argparse import ArgumentParser, FileType, HelpFormatter
@@ -28,6 +24,9 @@ def chunks(values, chunks):
 
 def stats2html(statsf):
     """for legacy stats output files"""
+    import pandas as pd
+    import numpy as np
+
     df = pd.read_csv(statsf, sep=":", header=None, names=["feature", "value"])
     values = df["value"].str.strip().str.replace("\t", " ").str.split().replace(np.nan, "")
     num = len(values[0]) or 1
@@ -37,6 +36,9 @@ def stats2html(statsf):
 
 def init_logs(args, tool="NanoComp"):
     """Initiate log file and log arguments."""
+    from datetime import datetime as dt
+    from time import time
+
     start_time = dt.fromtimestamp(time()).strftime("%Y%m%d_%H%M")
     logname = os.path.join(args.outdir, args.prefix + tool + "_" + start_time + ".log")
     handlers = [logging.FileHandler(logname)]

@@ -1,15 +1,5 @@
-import pickle
-import nanoget
-from nanoplot.filteroptions import filter_and_transform_data
-import nanocomp.utils as utils
-import nanocomp.compplots as compplots
-import numpy as np
 import logging
-from nanomath import write_stats
-from nanoplot.utils import subsample_datasets
-from itertools import cycle
-import plotly.colors
-
+import nanocomp.utils as utils
 
 def main():
     """
@@ -18,7 +8,10 @@ def main():
     -gets inputdata
     -calls plotting function
     """
+
     settings, args = utils.get_args()
+    from nanomath import write_stats
+
     try:
         utils.make_output_dir(args.outdir)
         utils.init_logs(args)
@@ -35,6 +28,7 @@ def main():
             split_dict = utils.validate_split_runs_file(args.split_runs)
         if args.pickle:
             from nanoget import combine_dfs
+            import pickle
 
             datadf = combine_dfs(
                 dfs=[pickle.load(open(p, "rb")) for p in args.pickle],
@@ -51,7 +45,9 @@ def main():
                 method="track",
             ).rename(columns={"identities": "percentIdentity"})
         else:
-            datadf = nanoget.get_input(
+            from nanoget import get_input
+
+            datadf = get_input(
                 source=[n for n, s in sources.items() if s][0],
                 files=[f for f in sources.values() if f][0],
                 threads=args.threads,
@@ -60,6 +56,7 @@ def main():
                 barcoded=args.barcoded,
                 combine="track",
             )
+        from nanoplot.filteroptions import filter_and_transform_data
         datadf, settings = filter_and_transform_data(datadf, vars(args))
         if args.raw:
             datadf.to_csv(
@@ -69,6 +66,7 @@ def main():
                 compression="gzip",
             )
         if args.store:
+            import pickle
             pickle.dump(obj=datadf, file=open(settings["path"] + "NanoComp-data.pickle", "wb"))
         if args.split_runs:
             utils.change_identifiers(datadf, split_dict)
@@ -92,15 +90,21 @@ def main():
 
 
 def make_plots(df, settings):
+    import nanocomp.compplots as compplots
+    import numpy as np
+    from nanoplot.utils import subsample_datasets
+    from itertools import cycle
+    import plotly.colors
+
     sub_df = subsample_datasets(df)
     df["log length"] = np.log10(df["lengths"])
     sub_df["log length"] = np.log10(sub_df["lengths"])
-    
+
     # Create a consistent color dictionary for ALL plots upfront
     datasets = df["dataset"].unique()
     palette = settings["colors"] if settings["colors"] else cycle(plotly.colors.DEFAULT_PLOTLY_COLORS)
     settings["colordict"] = {dataset: color for dataset, color in zip(datasets, palette)}
-    
+
     plots = []
     plots.extend(
         compplots.output_barplot(
