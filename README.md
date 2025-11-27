@@ -1,21 +1,17 @@
 # NanoComp
 
-
 Compare multiple runs of long read sequencing data and alignments. Creates violin plots or box plots of length, quality and percent identity and creates dynamic, overlaying read length histograms and a cumulative yield plot.
 
 As of version 1.1.0 NanoComp will also create a static png image for dynamic html plots, as the latter can get quite big and slow to load for big datasets. This however requires that you install [orca](https://github.com/plotly/orca). Without orca the script still works, but no static copies of dynamic plots are created.
 
-[![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/wouter_decoster.svg?style=social&label=Follow%20%40wouter_decoster)](https://twitter.com/wouter_decoster)
-
-
-### INSTALLATION
+## INSTALLATION
 `pip install NanoComp`  
 or  
 `conda install bioconda::nanocomp`
 
 This script is written for Python3.
 
-### USAGE
+## USAGE
 ```
 NanoComp [-h] [-v] [-t THREADS] [-o OUTDIR] [-p PREFIX] [--verbose]
                 [--raw] [--readtype {1D,2D,1D2}] [--barcoded]
@@ -71,14 +67,14 @@ Input data sources, one of these is required.:
 
 
 
-### EXAMPLES
+## EXAMPLES
 ```
 NanoComp --bam alignment1.bam alignment2.bam alignment3.bam --outdir compare-runs
 NanoComp --fastq reads1.fastq.gz reads2.fastq.gz reads3.fastq.gz reads4.fastq.gz --names run1 run2 run3 run4
 ```
 
 
-### EXAMPLE OUTPUT
+## EXAMPLE OUTPUT
 ![loglength example](https://github.com/wdecoster/nanocomp/blob/master/examples/NanoComp_log_length.png)
 ![box percentIdentity example](https://github.com/wdecoster/nanocomp/blob/master/examples/box_NanoComp_percentIdentity.png)
 
