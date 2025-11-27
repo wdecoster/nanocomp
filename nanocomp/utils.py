@@ -29,7 +29,7 @@ def stats2html(statsf):
 
     df = pd.read_csv(statsf, sep=":", header=None, names=["feature", "value"])
     values = df["value"].str.strip().str.replace("\t", " ").str.split().replace(np.nan, "")
-    num = len(values[0]) or 1
+    num = len(values.iloc[0]) or 1
     v = [chunks(i, num) for i in values]
     return pd.DataFrame(v, index=df["feature"]).to_html(header=False)
 
