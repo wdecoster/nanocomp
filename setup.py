@@ -35,7 +35,7 @@ setup(
         "pandas",
         "numpy>=1.16.5",
         "nanoget>=1.19.0",
-        "NanoPlot>=1.43.0",
+        "NanoPlot>=1.46.1",
         "psutil",
         "plotly>=3.4.2",
         "pyarrow",
