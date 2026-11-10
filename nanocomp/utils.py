@@ -66,6 +66,11 @@ def validate_split_runs_file(split_runs_file):
 
 def change_identifiers(datadf, split_dict):
     """Change the dataset identifiers based on the names in the dictionary."""
+    if "runIDs" not in datadf.columns:
+        sys.exit(
+            "ERROR: --split_runs can only be used with summary input "
+            "containing run IDs (--summary)."
+        )
     for rid, name in split_dict.items():
         datadf.loc[datadf["runIDs"] == rid, "dataset"] = name
 
